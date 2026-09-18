@@ -8,6 +8,7 @@
 |---|---|---|
 | **微信开发者工具** | developers.weixin.qq.com/miniprogram/dev/devtools/download.html | 稳定版 Stable Build |
 | **Node.js** | nodejs.org/zh-cn | LTS 版（跑测试用） |
+| **Git** | git-scm.com | Mac 一般自带，`git clone` 报「找不到命令」才装 |
 
 代码编辑器不用另装，开发者工具自带。
 
@@ -17,10 +18,17 @@
 - [ ] 让他把你的微信号加进小程序后台，勾「开发者」和「体验者」
 - [ ] 等他说加好了
 
-## 三、拿代码
+## 三、把代码拷到电脑上
 
-- [ ] 从 Derek 那拿到 `yishi` 文件夹（压缩包，或他给你 Git 链接让你 `git clone`）
-- [ ] 放到你电脑上一个好找的位置
+打开终端（Mac 是「终端」，Windows 是「Git Bash」），跑这一行：
+
+```
+git clone https://github.com/derekhut/yishi.git
+```
+
+- 仓库是**公开的**，不用登录、不用申请权限
+- 跑完当前目录下会多出一个 `yishi` 文件夹
+- 换目录跑一次就重新下一份，想放哪就先 `cd` 到哪
 
 ## 四、登录
 
@@ -85,20 +93,38 @@ node tests/run-all.js
 
 7 个套件，每行末尾都要是 **0 失败**。
 
-## 九、四条硬规矩
+## 九、以后怎么同步代码
+
+**拉取 Derek 的新改动：**
+
+```
+git pull
+```
+
+**把你的改动交上去：**
+
+```
+git add -A
+git commit -m "改了什么，一句话说清楚"
+git push
+```
+
+> `git push` 需要你先被加为这个仓库的 collaborator，没加会报 403。报 403 就先别管，只 `git commit` 保住改动，然后让 Derek 把你加上。
+
+## 十、四条硬规矩
 
 1. 优先用小程序自带组件：`view` `text` `button` `image` `checkbox` `radio` `picker` `switch` `navigator` `scroll-view`。官方已经提供的「行为」（勾选、点击热区、滚动、表单）不要自己重做。
 2. 不要引第三方 UI 库（Vant / TDesign / uView）。
 3. 界面文案不许出现「残障 / 残疾 / 病人 / 疾病」，一律说「动作不太方便」。
 4. 纯逻辑写进 `utils/`，页面只负责渲染。
 
-## 十、你不用管的事
+## 十一、你不用管的事
 
 - 发布上线（只有管理员能做）
 - 云函数部署、环境变量、开通云开发
 - 服务器域名配置
 
-## 十一、卡住了
+## 十二、卡住了
 
 - 编译报错 → 点「清缓存」→「全部清除」→ 重新编译
 - 扫码说没权限 → 回第二步
