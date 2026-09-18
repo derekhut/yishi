@@ -4,3 +4,7 @@ project.private.config.json
 
 # 云函数的依赖由「上传并部署：云端安装依赖」在云端装
 node_modules/
+
+# 本机临时目录：.local/model.js 放模型密钥、.local/*.png 是本地测试出的预览图。
+# 整个目录都不进仓库 —— 密钥一旦提交过，删掉也没用，历史里还在。
+.local/
