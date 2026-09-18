@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="52 34 196 196" width="300" height="300">
+  <g>
+    <path d="M132 52 L104 60 Q90 104 74 150 L98 157 Q104 132 112 108 Q110 162 108 215 L192 215 Q190 162 188 108 Q196 132 202 157 L226 150 Q210 104 196 60 L168 52 Q150 41 132 52 Z"
+      fill="#F7F7F7" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M104 60 Q104 88 112 108 M196 60 Q196 88 188 108" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+    <path d="M132 52 Q140 76 143 112 Q146 166 147 213 M168 52 Q160 76 157 112 Q154 166 153 213" fill="none" stroke="#1A1A1A" stroke-width="1.2"/>
+    <path d="M134 56 Q150 46 166 56 M136 60 Q150 51 164 60" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+    <path d="M78 141 L99 148 M220 141 L199 148" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+    <path d="M109 206 L191 206" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+    <circle cx="150" cy="96" r="3" fill="#1A1A1A"/>
+    <circle cx="150" cy="118" r="3" fill="#1A1A1A"/>
+    <circle cx="150" cy="140" r="3" fill="#1A1A1A"/>
+    <circle cx="150" cy="162" r="3" fill="#1A1A1A"/>
+    <circle cx="150" cy="184" r="3" fill="#1A1A1A"/>
+  </g>
+</svg>

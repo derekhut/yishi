@@ -1,0 +1,130 @@
+page {
+  --ink: #1A1A1A;
+  --ink-2: #6E6E6E;
+  --ink-3: #A8A8A8;
+  --line: #ECECEC;
+  --soft: #F7F7F7;
+  --good: #3D7A5F;
+  --warn: #C77D2B;
+  background-color: #FFFFFF;
+  color: var(--ink);
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+view, text, button {
+  box-sizing: border-box;
+}
+
+.page-body {
+  padding: 32rpx 48rpx 48rpx;
+}
+
+.who-bar {
+  font-size: 26rpx;
+  color: var(--ink-2);
+  padding: 32rpx 48rpx 0;
+}
+
+.who-bar .who-name {
+  color: var(--ink);
+  font-weight: 600;
+  border-bottom: 2rpx solid var(--ink-3);
+  padding-bottom: 2rpx;
+}
+
+.dots {
+  display: flex;
+  gap: 12rpx;
+  padding: 32rpx 48rpx 0;
+}
+
+.dots .dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.dots .dot.on {
+  background: var(--ink);
+}
+
+.q-title {
+  font-size: 48rpx;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 1rpx;
+}
+
+.q-hint {
+  font-size: 26rpx;
+  color: var(--ink-3);
+  margin-top: 16rpx;
+  line-height: 1.7;
+}
+
+.btn-main {
+  display: block;
+  width: 100%;
+  background: var(--ink);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 56rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  padding: 34rpx 0;
+  margin-top: 64rpx;
+  letter-spacing: 2rpx;
+  text-align: center;
+}
+
+.btn-main::after {
+  border: none;
+}
+
+.btn-link {
+  display: inline-block;
+  background: none;
+  border: none;
+  font-size: 28rpx;
+  color: var(--ink);
+  margin-top: 32rpx;
+  padding: 0;
+  border-bottom: 2rpx solid var(--ink-3);
+  padding-bottom: 4rpx;
+  line-height: 1.6;
+}
+
+.btn-link::after {
+  border: none;
+}
+
+.foot-note {
+  font-size: 24rpx;
+  color: var(--ink-3);
+  text-align: center;
+  margin-top: 32rpx;
+  line-height: 1.7;
+}
+
+.sec-lbl {
+  font-size: 22rpx;
+  letter-spacing: 6rpx;
+  color: var(--ink-3);
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid var(--line);
+  margin-top: 16rpx;
+}
+
+.sec-lbl .sec-num {
+  font-size: 22rpx;
+  letter-spacing: 0;
+  margin-right: 16rpx;
+  font-weight: 500;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}

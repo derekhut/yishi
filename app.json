@@ -1,0 +1,19 @@
+{
+  "pages": [
+    "pages/profile/index",
+    "pages/add/index",
+    "pages/result/index",
+    "pages/confirm/index",
+    "pages/ideal/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "衣适",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFFFFF",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

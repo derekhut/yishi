@@ -1,0 +1,173 @@
+/* —— 双栏对比 —— */
+
+.compare {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 56rpx;
+}
+
+.cmp-col {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 用 block + widthFix，和 result 页一致：微信按渲染宽度算高度，两栏天然等高 */
+.cmp-frame {
+  padding: 16rpx;
+  border-radius: 24rpx;
+  background: var(--soft);
+}
+
+/* 右边是目标款：白底 + 黑描边，和画像页的选中态用同一套语言 */
+.cmp-col.ideal .cmp-frame {
+  background: #FFFFFF;
+  border: 2rpx solid var(--ink);
+}
+
+.cmp-img {
+  display: block;
+  width: 100%;
+}
+
+.cmp-lbl {
+  font-size: 22rpx;
+  letter-spacing: 2rpx;
+  color: var(--ink-3);
+  margin-top: 24rpx;
+}
+
+.cmp-col.ideal .cmp-lbl {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.cmp-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  margin-top: 8rpx;
+}
+
+.cmp-meta {
+  font-size: 24rpx;
+  color: var(--ink-3);
+  margin-top: 4rpx;
+}
+
+/* —— 01 现在这件 —— */
+
+.sec-first {
+  margin-top: 72rpx;
+}
+
+.fact-list {
+  margin-top: 8rpx;
+}
+
+.fact {
+  display: flex;
+  align-items: flex-start;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.fact-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  flex: none;
+  margin: 18rpx 20rpx 0 0;
+}
+
+.fact-dot.good { background: var(--good); }
+.fact-dot.warn { background: var(--warn); }
+
+.fact-text {
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+/* —— 02 换成这些结构 —— */
+
+.sec-gap {
+  margin-top: 72rpx;
+}
+
+.feat-list {
+  margin-top: 8rpx;
+}
+
+.feat {
+  display: flex;
+  align-items: flex-start;
+  padding: 28rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.feat-num {
+  flex: none;
+  width: 48rpx;
+  font-size: 26rpx;
+  color: var(--ink-3);
+}
+
+.feat-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.feat-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.feat-detail {
+  font-size: 26rpx;
+  color: var(--ink-2);
+  line-height: 1.8;
+  margin-top: 8rpx;
+}
+
+/* —— 差距 —— */
+
+.gap-box {
+  font-size: 30rpx;
+  line-height: 1.7;
+  margin-top: 48rpx;
+  padding-left: 28rpx;
+  border-left: 4rpx solid var(--ink);
+}
+
+/* —— 话术 —— */
+
+.script-box {
+  background: var(--soft);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-top: 56rpx;
+}
+
+.script-lbl {
+  font-size: 24rpx;
+  color: var(--ink-3);
+  margin-bottom: 16rpx;
+}
+
+.script-text {
+  font-size: 28rpx;
+  line-height: 1.9;
+}
+
+.script-copy {
+  display: inline-block;
+  font-size: 26rpx;
+  color: var(--ink);
+  margin-top: 24rpx;
+  padding-bottom: 4rpx;
+  border-bottom: 2rpx solid var(--ink-3);
+}
+
+.link-wrap {
+  text-align: center;
+  margin-top: 40rpx;
+}

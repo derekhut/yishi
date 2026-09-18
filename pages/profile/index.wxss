@@ -1,0 +1,41 @@
+.opt-list {
+  margin-top: 48rpx;
+}
+
+.opt {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2rpx solid var(--line);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.opt.sel {
+  border-color: var(--ink);
+}
+
+.opt-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.opt-t1 {
+  font-size: 32rpx;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.opt-t2 {
+  font-size: 26rpx;
+  color: var(--ink-2);
+  margin-top: 8rpx;
+  line-height: 1.5;
+}
+
+/* 勾选框用小程序自带的 checkbox，不再自己画圆圈和对勾。
+   选中态只需要把外框变黑——圆点和对勾都由原生组件负责。 */
+.opt-ck {
+  flex: none;
+}

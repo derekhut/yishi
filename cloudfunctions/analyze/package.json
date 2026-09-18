@@ -1,0 +1,9 @@
+{
+  "name": "analyze",
+  "version": "1.0.0",
+  "description": "衣服好穿度分析云函数：调用多模态模型，输出结构化分析结果，失败自动兜底",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

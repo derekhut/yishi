@@ -1,0 +1,72 @@
+<view class="who-bar">{{analysis ? analysis.garment.name : '分析中'}} · 为 <text class="who-name">{{who}}</text> 判断</view>
+
+<view class="dots">
+  <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
+</view>
+
+<view wx:if="{{loading}}" class="loading-block">
+  <view class="loading-ring"></view>
+  <view class="loading-tip">{{loadingTip}}</view>
+  <view class="loading-sub">通常需要 10–20 秒</view>
+</view>
+
+<view wx:else class="page-body">
+  <view class="sec-lbl"><text class="sec-num">01</text>好穿指数</view>
+
+  <view class="score-row num">
+    <text class="score-num">{{analysis.score}}</text>
+    <text class="score-unit">/ 100</text>
+    <text class="score-level {{scoreTone}}">{{analysis.level}}</text>
+  </view>
+
+  <view class="verdict">
+    <view class="verdict-title">{{analysis.summary}}</view>
+  </view>
+
+  <view class="dims num">
+    <view wx:for="{{dimsView}}" wx:key="key" class="dim">
+      <text class="dim-label">{{item.label}}</text>
+      <view class="bar-track">
+        <view class="bar-fill {{item.tone}}" style="width: {{item.width}}"></view>
+      </view>
+      <text class="dim-score">{{item.score}}</text>
+    </view>
+  </view>
+
+  <view class="score-note">分数按 {{who}} 的动作难点加权得出。换一个人，同一件衣服的分数会不同。</view>
+
+  <view class="sec-gap">
+    <view class="sec-lbl"><text class="sec-num">02</text>结构分析</view>
+
+    <view class="garment-wrap">
+      <image class="garment" src="{{garmentImage}}" mode="widthFix"></image>
+      <view
+        wx:for="{{markersView}}"
+        wx:key="index"
+        class="marker {{item.cls}}"
+        style="left: {{item.left}}; top: {{item.top}}"
+      >{{item.label}}</view>
+    </view>
+    <view class="garment-caption">橙色数字对应下面需要留意的地方</view>
+
+    <view class="findings">
+      <view wx:for="{{findings}}" wx:key="title" class="finding">
+        <view class="finding-head">
+          <text wx:if="{{item.index}}" class="finding-index warn">{{item.index}}</text>
+          <text class="finding-tag {{item.type}}">{{item.label}}</text>
+          <text class="finding-title">{{item.title}}</text>
+        </view>
+        <view class="finding-detail">{{item.detail}}</view>
+      </view>
+    </view>
+  </view>
+
+  <button class="btn-main" bindtap="onConfirm">下一步 · 购买确认</button>
+  <view class="link-wrap" bindtap="onIdeal">
+    <text class="btn-link">理想的开衫长什么样 →</text>
+  </view>
+
+  <view wx:if="{{sampleNote}}" class="sample-note" bindtap="onRetry">
+    当前为{{sourceLabel}} · 点此重新分析
+  </view>
+</view>
