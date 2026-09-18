@@ -35,10 +35,11 @@ node tests/run-all.js      # 全部检查：每行都要显示「0 失败」
 **还没配的两件事**（没配也能跑，会自动退回示例数据）：
 
 1. 云函数环境变量 `MODEL_BASE_URL` / `MODEL_API_KEY` / `MODEL_NAME` —— 不配就一直走示例数据，真实模型调不通
-2. 数据库集合 `analyses` —— 用来缓存 24 小时内的分析结果
+2. 数据库集合 `analyses` —— 用来缓存 24 小时内的分析结果。
+   **现在还不用建**：只有真实分析成功才会写它，目前一直走兜底，碰不到这个集合
 
-`utils/config.js` 里的 `FORCE_EXAMPLE: true` 是演示用的紧急开关：打开就强制走内置示例数据，
-一行代码回到 100% 可控状态。**演示前一定要知道它在哪。**
+`utils/config.js` 里的 `FORCE_EXAMPLE` 是演示用的紧急开关（**当前是 `false`**）：
+改成 `true` 就强制走内置示例数据，一行代码回到 100% 可控状态。**演示前一定要知道它在哪。**
 
 ---
 
@@ -62,6 +63,9 @@ docs/                            本项目专属文档
 
 | 你要做的事 | 看哪里 |
 |---|---|
+| **新同学第一天：按什么顺序做、做到什么样算完成** | [docs/handout-v1.md](docs/handout-v1.md) |
+| 了解第一版交付范围与验收标准 | [docs/requirements-v1.md](docs/requirements-v1.md) |
+| 按优先级推进后续开发 | [docs/todo.md](docs/todo.md) |
 | 从零把这个项目做一遍（含每一步「为什么这么设计」） | [docs/rebuild-from-scratch.md](docs/rebuild-from-scratch.md) |
 | 改提示词 | `cloudfunctions/analyze/lib/prompt.js`，改完跑 `node tools/export-prompt.js` |
 | 只想看提示词全文 | [docs/prompt-for-model.md](docs/prompt-for-model.md)（**脚本生成，勿手改**） |
@@ -90,7 +94,8 @@ docs/                            本项目专属文档
   语义色只有两个，且只用在结果页和对比页的圆点上：省力绿 `#3D7A5F`、注意琥珀 `#C77D2B`。
   主按钮是纯黑胶囊形，选中态用**描边**不用填充色块。
 - **文案不许贴标签。** 界面里一律说「动作不太方便」，不出现疾病名称。
-  有脚本扫 `pages/` 检查这条。
+  `tests/check-skeleton.js` 第 [7] 组会扫全部 `wxml / wxss / js / json` 检查这条
+  （排除 `node_modules`、`cloudfunctions`、`tests`；`docs/` 不参与，它不是界面文案）。
 
 ---
 
