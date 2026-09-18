@@ -4,7 +4,9 @@
 > 目标：把这套东西自己做出来，并且**能跑、能演示、能讲清楚为什么这么做**。
 > 读完预计：第一次通读 20 分钟；真正动手做完约 3–5 天（每天 3 小时）。
 >
-> **嫌长？** 先看 `cheatsheet.md`（八张速查卡，没废话）。想直接抄提示词看 `prompt-for-model.md`。
+> **嫌长？** 想直接抄提示词看 `prompt-for-model.md`（由脚本生成，勿手改）。
+> 想要**跟本项目无关的通用教程**（装环境、账号与权限、Git 协作、排错、答辩），见
+> https://github.com/derekhut/miniprogram-onboarding-guide —— 那份换个项目也能用。
 > 这份文档的价值在后面那些「为什么这么设计」——动手时可以先跳过，答辩前一定要回来看。
 
 ---
@@ -604,6 +606,8 @@ node tools/verify-markers.js
 ```
 yishi/
 ├── app.js / app.json / app.wxss     全局：配置 + 设计变量
+├── project.config.json              项目配置（AppID 写在这里）
+├── sitemap.json                     小程序索引配置
 ├── utils/
 │   ├── config.js                 环境 ID、函数名、示例模式开关
 │   ├── store.js                  画像与分析结果的存取（纯逻辑）
@@ -624,23 +628,39 @@ yishi/
 │       ├── sample.js             服务端兜底示例数据
 │       ├── model.js              HTTP 请求与解析
 │       └── analyze.js            编排（重试 + 兜底）
-├── assets/                       衣服示意图（SVG 源 + 生成的 PNG）
+├── assets/
+│   ├── garment-*.svg / .png      衣服示意图（源 + 生成的 PNG）
+│   └── avatar/                   小程序头像（144×144，由脚本生成）
 ├── tools/
 │   ├── build-assets.js           SVG → PNG
+│   ├── build-avatar.js           生成小程序头像（几何绘制，不用 AI 出图）
+│   ├── export-prompt.js          从 prompt.js 导出 docs/prompt-for-model.md
 │   └── verify-markers.js         标注坐标像素级校验
-├── tests/                        7 个检查套件 + 汇总脚本
-└── docs/                         文档
+├── tests/                        check-*.js 检查套件 + run-all.js 汇总
+└── docs/
+    ├── rebuild-from-scratch.md   本文件
+    └── prompt-for-model.md       由 tools/export-prompt.js 生成，勿手改
 ```
+
+> `node_modules/` 和 `project.private.config.json` 不跟着代码走，已被 `.gitignore` 排除。
+> 云函数的依赖由开发者工具的「上传并部署：云端安装依赖」在云端装。
+>
+> **通用教程不放在这里。** 跟本项目无关的那些（装环境、账号权限、Git 协作、排错、答辩）
+> 统一放在 https://github.com/derekhut/miniprogram-onboarding-guide ，换任何小程序项目都能用。
 
 ## 附录 B · 命令速查
 
 ```bash
 cd yishi
-node tests/run-all.js            # 跑全部检查（393 项）
+node tests/run-all.js            # 跑全部检查：每行都要显示「0 失败」
 node tests/check-skeleton.js     # 只查结构和禁词
 node tests/check-result.js       # 只查结果页
 node tools/verify-markers.js     # 查标注坐标有没有飘出衣服
+node tools/export-prompt.js      # 改完 prompt.js 后重新导出 docs/prompt-for-model.md
 ```
+
+> 判断标准是**每行都显示 `0 失败`**，不要去记总共有多少项 —— 你每加一个测试文件，
+> 总数就会变；写死的数字迟早过期，而过期的数字会让人误判。
 
 ## 附录 C · 给答辩准备的三个"为什么"
 
