@@ -1,29 +1,28 @@
-<view class="who-bar">正在为 <text class="who-name">{{who}}</text> 选衣服</view>
+<view class="page-root {{themeClass}}">
 
-<view class="dots">
-  <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
-</view>
-
-<view class="page-body">
-  <view class="q-title">拍一件衣服</view>
-  <view class="q-hint">网购商品截图，或衣服实拍都可以。先从一件上衣开始。</view>
-
-  <view wx:if="{{!previewPath}}" class="upload" bindtap="onChoose">
-    <view class="plus"></view>
-    <view class="upload-t1">拍照片，或上传截图</view>
-    <view class="upload-t2">尽量拍清整件衣服和开合处</view>
+  <view class="dots">
+    <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
   </view>
 
-  <view wx:else class="preview-wrap" bindtap="onChoose">
-    <image class="preview" src="{{previewPath}}" mode="aspectFit"></image>
-    <view class="preview-tip">换一张</view>
+  <view class="page-body">
+    <view class="q-title">拍一件衣服</view>
+
+    <view wx:if="{{!previewPath}}" class="upload" bindtap="onChoose">
+      <view class="plus"></view>
+      <view class="upload-t1">拍照片，或上传截图</view>
+    </view>
+
+    <view wx:else class="preview-wrap" bindtap="onChoose">
+      <image class="preview" src="{{previewPath}}" mode="aspectFit"></image>
+      <view class="preview-tip">换一张</view>
+    </view>
+
+    <view wx:if="{{uploadFailed}}" class="warn-note">图片没有上传成功，点「开始分析」会自动重试一次</view>
+
+    <button class="btn-main" bindtap="onAnalyze" loading="{{uploading}}">开始分析</button>
+    <view class="link-wrap" bindtap="onExample">
+      <text class="btn-link">先用示例看看 →</text>
+    </view>
   </view>
 
-  <view wx:if="{{uploadFailed}}" class="warn-note">图片没有上传成功，点「开始分析」会自动重试一次</view>
-
-  <button class="btn-main" bindtap="onAnalyze" loading="{{uploading}}">开始分析</button>
-  <view class="link-wrap" bindtap="onExample">
-    <text class="btn-link">先用示例看看 →</text>
-  </view>
-  <view class="foot-note">袖口、背面、标签拍得越清楚，需要补问的信息就越少</view>
 </view>

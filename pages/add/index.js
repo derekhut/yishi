@@ -1,5 +1,6 @@
 const store = require('../../utils/store.js');
 const upload = require('../../utils/upload.js');
+const theme = require('../../utils/theme.js');
 
 Page({
   data: {
@@ -9,10 +10,14 @@ Page({
     previewPath: '',
     fileID: '',
     uploading: false,
-    uploadFailed: false
+    uploadFailed: false,
+    eyeCare: false,
+    themeClass: '',
+    ckColor: theme.THEME.light.ink
   },
 
   onLoad() {
+    theme.applyTheme(this, wx);
     const profile = store.loadProfile(wx);
     if (!store.isValidProfile(profile)) {
       wx.redirectTo({ url: '/pages/profile/index' });

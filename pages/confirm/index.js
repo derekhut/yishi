@@ -1,5 +1,6 @@
 const store = require('../../utils/store.js');
 const format = require('../../utils/format.js');
+const theme = require('../../utils/theme.js');
 
 Page({
   data: {
@@ -10,10 +11,14 @@ Page({
     questions: [],
     script: '',
     idealScript: '',
-    tryOn: []
+    tryOn: [],
+    eyeCare: false,
+    themeClass: '',
+    ckColor: theme.THEME.light.ink
   },
 
   onLoad() {
+    theme.applyTheme(this, wx);
     const profile = store.loadProfile(wx);
     if (!store.isValidProfile(profile)) {
       wx.redirectTo({ url: '/pages/profile/index' });

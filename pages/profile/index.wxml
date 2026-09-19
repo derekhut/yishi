@@ -1,27 +1,39 @@
-<view class="who-bar">正在为 <text class="who-name">{{who}}</text> 选衣服 · 可修改</view>
+<view class="page-root {{themeClass}}">
 
-<view class="dots">
-  <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
-</view>
+  <view class="dots-row">
+    <view class="dots">
+      <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
+    </view>
+    <text class="step-label">第 {{currentStep + 1}} 步，共 {{steps.length}} 步</text>
+  </view>
 
-<view class="page-body">
-  <view class="q-title">哪些动作比较费劲？</view>
-  <view class="q-hint">按平时的体验选，可多选。我们只关心动作能力。</view>
+  <view class="page-body">
+    <view class="q-title">哪些动作比较费劲？</view>
 
-  <checkbox-group class="opt-list" bindchange="onChange">
-    <label
-      wx:for="{{options}}"
-      wx:key="key"
-      class="opt {{item.selected ? 'sel' : ''}}"
-    >
-      <view class="opt-text">
-        <view class="opt-t1">{{item.title}}</view>
-        <view class="opt-t2">{{item.desc}}</view>
+    <checkbox-group class="opt-list" bindchange="onChange">
+      <label
+        wx:for="{{options}}"
+        wx:key="key"
+        class="opt {{item.selected ? 'sel' : ''}}"
+      >
+        <view class="opt-icon">
+          <image class="opt-img" src="{{item.icon}}" mode="aspectFit"></image>
+        </view>
+        <view class="opt-text">
+          <view class="opt-t1">{{item.title}}</view>
+        </view>
+        <checkbox class="opt-ck" value="{{item.key}}" checked="{{item.selected}}" color="{{switchOnColor}}"></checkbox>
+      </label>
+    </checkbox-group>
+
+    <button class="btn-main" bindtap="onNext">下一步</button>
+
+    <view class="eye-row">
+      <view class="eye-text">
+        <view class="eye-t1">护眼模式</view>
       </view>
-      <checkbox class="opt-ck" value="{{item.key}}" checked="{{item.selected}}" color="#1A1A1A"></checkbox>
-    </label>
-  </checkbox-group>
+      <switch class="eye-switch" checked="{{eyeCare}}" bindchange="onEyeChange" color="{{switchOnColor}}"></switch>
+    </view>
+  </view>
 
-  <button class="btn-main" bindtap="onNext">下一步</button>
-  <view class="foot-note">随时可以修改 · 我们只关心动作能力</view>
 </view>

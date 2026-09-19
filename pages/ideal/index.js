@@ -1,4 +1,5 @@
 const store = require('../../utils/store.js');
+const theme = require('../../utils/theme.js');
 
 // 左栏最多列 3 条，再多就成了信息墙，反而看不清重点。
 const MAX_FACTS = 3;
@@ -47,10 +48,14 @@ Page({
     currentFacts: [],
     idealFeatures: [],
     idealGap: '',
-    idealScript: ''
+    idealScript: '',
+    eyeCare: false,
+    themeClass: '',
+    ckColor: theme.THEME.light.ink
   },
 
   onLoad() {
+    theme.applyTheme(this, wx);
     const profile = store.loadProfile(wx);
     if (!store.isValidProfile(profile)) {
       wx.redirectTo({ url: '/pages/profile/index' });

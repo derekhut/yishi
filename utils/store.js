@@ -1,5 +1,6 @@
 const KEY = 'yishi_profile';
 const ANALYSIS_KEY = 'yishi_last_analysis';
+const SETTINGS_KEY = 'yishi_settings';
 const DIFFICULTIES = ['buttons', 'liftArm', 'bend'];
 const DEFAULT_WHO = '妈妈';
 
@@ -66,9 +67,36 @@ function loadAnalysis(wxApi) {
   }
 }
 
+// —— 全局设置（护眼模式等）——
+function defaultSettings() {
+  return { eyeCare: false };
+}
+
+function loadSettings(wxApi) {
+  try {
+    const raw = wxApi.getStorageSync(SETTINGS_KEY);
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return defaultSettings();
+    return { eyeCare: raw.eyeCare === true };
+  } catch (err) {
+    return defaultSettings();
+  }
+}
+
+function saveSettings(wxApi, settings) {
+  const current = loadSettings(wxApi);
+  const record = Object.assign({}, current, settings || {}, { updatedAt: Date.now() });
+  try {
+    wxApi.setStorageSync(SETTINGS_KEY, record);
+    return record;
+  } catch (err) {
+    return null;
+  }
+}
+
 module.exports = {
   KEY,
   ANALYSIS_KEY,
+  SETTINGS_KEY,
   DIFFICULTIES,
   DEFAULT_WHO,
   defaultProfile,
@@ -77,5 +105,8 @@ module.exports = {
   loadProfile,
   saveProfile,
   saveAnalysis,
-  loadAnalysis
+  loadAnalysis,
+  defaultSettings,
+  loadSettings,
+  saveSettings
 };

@@ -4,16 +4,38 @@
 
 .opt {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border: 2rpx solid var(--line);
+  border: 4rpx solid var(--line);
   border-radius: 24rpx;
-  padding: 32rpx;
-  margin-bottom: 16rpx;
+  padding: 28rpx 32rpx;
+  margin-bottom: 20rpx;
+  gap: 24rpx;
 }
 
+/* 选中态：暖橙粗框 + 米黄底，反馈一眼可见 */
 .opt.sel {
-  border-color: var(--ink);
+  border-color: var(--warn);
+  background: var(--sel);
+}
+
+.opt-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
+  background: var(--icon-bg);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.opt.sel .opt-icon {
+  background: #FFFFFF;
+}
+
+.opt-img {
+  width: 52rpx;
+  height: 52rpx;
 }
 
 .opt-text {
@@ -22,20 +44,73 @@
 }
 
 .opt-t1 {
-  font-size: 32rpx;
+  font-size: 38rpx;
   font-weight: 500;
   line-height: 1.4;
-}
-
-.opt-t2 {
-  font-size: 26rpx;
-  color: var(--ink-2);
-  margin-top: 8rpx;
-  line-height: 1.5;
 }
 
 /* 勾选框用小程序自带的 checkbox，不再自己画圆圈和对勾。
    选中态只需要把外框变黑——圆点和对勾都由原生组件负责。 */
 .opt-ck {
   flex: none;
+}
+
+/* —— 护眼模式开关 —— */
+
+.eye-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2rpx solid var(--line);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-top: 48rpx;
+  background: var(--soft);
+}
+
+.eye-t1 {
+  font-size: 38rpx;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.eye-switch {
+  flex: none;
+  transform: scale(1.4);
+  margin-left: 24rpx;
+}
+
+/* —— 步骤进度：大圆点 + 长条 + 文字说明 —— */
+
+.dots-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 32rpx 48rpx 0;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 0;
+}
+
+.dots .dot {
+  width: 32rpx;
+  height: 10rpx;
+  border-radius: 6rpx;
+  background: var(--line);
+}
+
+.dots .dot.on {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: var(--warn);
+}
+
+.step-label {
+  font-size: 30rpx;
+  color: var(--ink-2);
 }

@@ -192,7 +192,7 @@ async function main() {
   ok(wxml.includes('previewPath'), '含预览图条件渲染');
   ok(wxml.includes('uploading'), '含上传中状态渲染');
   ok(wxml.includes('dots'), '含进度圆点');
-  ok(wxml.includes('foot-note'), '含底部提示');
+  ok(!wxml.includes('foot-note'), '底部小字已按需求移除');
 
   console.log('\n[12] 文案合规与骨架回归');
   const banned = ['残障', '残疾', '病人', '疾病'];

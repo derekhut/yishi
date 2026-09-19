@@ -1,65 +1,67 @@
-<view class="who-bar">为 <text class="who-name">{{who}}</text> 找一件更好穿的</view>
+<view class="page-root {{themeClass}}">
 
-<view class="dots">
-  <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
-</view>
+  <view class="dots">
+    <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
+  </view>
 
-<view class="page-body">
-  <view class="q-title">理想的开衫，长这样</view>
-  <view class="q-hint">左边是正在看的这件，右边是更省力的结构。</view>
+  <view class="page-body">
+    <view class="q-title">理想的开衫，长这样</view>
+    <view class="q-hint">左边是正在看的这件，右边是更省力的结构。</view>
 
-  <view class="compare">
-    <view class="cmp-col">
-      <view class="cmp-frame">
-        <image class="cmp-img" src="{{imageCurrent}}" mode="aspectFit"></image>
+    <view class="compare">
+      <view class="cmp-col">
+        <view class="cmp-frame">
+          <image class="cmp-img" src="{{imageCurrent}}" mode="aspectFit"></image>
+        </view>
+        <view class="cmp-lbl">现在这件</view>
+        <view class="cmp-name">{{garmentName}}</view>
+        <view class="cmp-meta num">{{score}} 分</view>
       </view>
-      <view class="cmp-lbl">现在这件</view>
-      <view class="cmp-name">{{garmentName}}</view>
-      <view class="cmp-meta num">{{score}} 分</view>
-    </view>
-    <view class="cmp-col ideal">
-      <view class="cmp-frame">
-        <image class="cmp-img" src="{{imageIdeal}}" mode="widthFix"></image>
-      </view>
-      <view class="cmp-lbl">理想结构</view>
-      <view class="cmp-name">更省力的选择</view>
-      <view class="cmp-meta num">{{idealFeatures.length}} 处更省力</view>
-    </view>
-  </view>
-
-  <view class="sec-first">
-    <view class="sec-lbl"><text class="sec-num">01</text>现在这件</view>
-  </view>
-  <view class="fact-list">
-    <view wx:for="{{currentFacts}}" wx:key="title" class="fact">
-      <view class="fact-dot {{item.type}}"></view>
-      <text class="fact-text">{{item.title}}</text>
-    </view>
-  </view>
-
-  <view class="sec-gap">
-    <view class="sec-lbl"><text class="sec-num">02</text>换成这些结构</view>
-  </view>
-  <view class="feat-list">
-    <view wx:for="{{idealFeatures}}" wx:key="index" class="feat">
-      <text class="feat-num num">{{item.index}}</text>
-      <view class="feat-body">
-        <view class="feat-title">{{item.title}}</view>
-        <view class="feat-detail">{{item.detail}}</view>
+      <view class="cmp-col ideal">
+        <view class="cmp-frame">
+          <image class="cmp-img" src="{{imageIdeal}}" mode="widthFix"></image>
+        </view>
+        <view class="cmp-lbl">理想结构</view>
+        <view class="cmp-name">更省力的选择</view>
+        <view class="cmp-meta num">{{idealFeatures.length}} 处更省力</view>
       </view>
     </view>
+
+    <view class="sec-first">
+      <view class="sec-lbl"><text class="sec-num">01</text>现在这件</view>
+    </view>
+    <view class="fact-list">
+      <view wx:for="{{currentFacts}}" wx:key="title" class="fact">
+        <view class="fact-dot {{item.type}}"></view>
+        <text class="fact-text">{{item.title}}</text>
+      </view>
+    </view>
+
+    <view class="sec-gap">
+      <view class="sec-lbl"><text class="sec-num">02</text>换成这些结构</view>
+    </view>
+    <view class="feat-list">
+      <view wx:for="{{idealFeatures}}" wx:key="index" class="feat">
+        <text class="feat-num num">{{item.index}}</text>
+        <view class="feat-body">
+          <view class="feat-title">{{item.title}}</view>
+          <view class="feat-detail">{{item.detail}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{idealGap}}" class="gap-box">{{idealGap}}</view>
+
+    <view class="script-box">
+      <view class="script-lbl">照着这样问商家</view>
+      <view class="script-text">{{idealScript}}</view>
+      <view class="script-copy" bindtap="onCopyScript">复制话术</view>
+    </view>
+
+    <button class="btn-main" bindtap="onConfirm">下一步 · 购买确认</button>
+    <view class="link-wrap" bindtap="onBack">
+      <text class="btn-link">← 回到分析结果</text>
+    </view>
   </view>
 
-  <view wx:if="{{idealGap}}" class="gap-box">{{idealGap}}</view>
-
-  <view class="script-box">
-    <view class="script-lbl">照着这样问商家</view>
-    <view class="script-text">{{idealScript}}</view>
-    <view class="script-copy" bindtap="onCopyScript">复制话术</view>
-  </view>
-
-  <button class="btn-main" bindtap="onConfirm">下一步 · 购买确认</button>
-  <view class="link-wrap" bindtap="onBack">
-    <text class="btn-link">← 回到分析结果</text>
-  </view>
 </view>

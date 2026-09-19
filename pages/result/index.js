@@ -2,6 +2,7 @@ const store = require('../../utils/store.js');
 const format = require('../../utils/format.js');
 const fallback = require('../../utils/fallback-analysis.js');
 const config = require('../../utils/config.js');
+const theme = require('../../utils/theme.js');
 
 const SOURCE_LABEL = {
   model: '真实分析',
@@ -24,10 +25,14 @@ Page({
     scoreTone: 'warn',
     source: '',
     sampleNote: false,
-    garmentImage: '/assets/garment-current.png'
+    garmentImage: '/assets/garment-current.png',
+    eyeCare: false,
+    themeClass: '',
+    ckColor: theme.THEME.light.ink
   },
 
   onLoad(query) {
+    theme.applyTheme(this, wx);
     const profile = store.loadProfile(wx);
     if (!store.isValidProfile(profile)) {
       wx.redirectTo({ url: '/pages/profile/index' });

@@ -106,10 +106,12 @@ ok(!wxml.includes('data-key'), '不再靠 data-key 手工取值');
 ok(!wxml.includes('onToggle'), '不再手写切换逻辑');
 ok(!wxml.includes('class="ck"'), '不再自画勾选框');
 ok(wxml.includes('bindtap="onNext"'), '下一步绑定 onNext');
-ok(wxml.includes('who-bar') || wxml.includes('who'), '含对象行');
+ok(!wxml.includes('who-bar'), '对象顶栏已按需求移除');
+ok(wxml.includes('themeClass'), '根节点绑定主题类（护眼模式）');
+ok(wxml.includes('onEyeChange'), '护眼模式开关已就位');
 ok(wxml.includes('dots'), '含进度圆点');
 ok(wxml.includes('btn-main'), '含主按钮');
-ok(wxml.includes('foot-note'), '含底部说明');
+ok(!wxml.includes('foot-note'), '底部小字已按需求移除');
 
 console.log('\n[6] 文案合规');
 const banned = ['残障', '残疾', '病人', '疾病'];

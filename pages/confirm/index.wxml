@@ -1,43 +1,45 @@
-<view class="who-bar">为 <text class="who-name">{{who}}</text> 确认这件衣服</view>
+<view class="page-root {{themeClass}}">
 
-<view class="dots">
-  <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
-</view>
+  <view class="dots">
+    <view wx:for="{{steps}}" wx:key="*this" class="dot {{index <= currentStep ? 'on' : ''}}"></view>
+  </view>
 
-<view class="page-body">
-  <view class="q-title">把不确定的，问清楚</view>
-  <view class="q-hint">这件衣服还有 {{questions.length}} 处需要补充信息，可以直接把问题发给商家。</view>
+  <view class="page-body">
+    <view class="q-title">把不确定的，问清楚</view>
+    <view class="q-hint">这件衣服还有 {{questions.length}} 处需要补充信息，可以直接把问题发给商家。</view>
 
-  <view class="q-list">
-    <view wx:for="{{questions}}" wx:key="index" class="q-item">
-      <view class="q-title-row">
-        <text class="q-index num">{{item.index}}</text>
-        <text class="q-text">{{item.title}}</text>
+    <view class="q-list">
+      <view wx:for="{{questions}}" wx:key="index" class="q-item">
+        <view class="q-title-row">
+          <text class="q-index num">{{item.index}}</text>
+          <text class="q-text">{{item.title}}</text>
+        </view>
+        <view class="q-detail">{{item.detail}}</view>
       </view>
-      <view class="q-detail">{{item.detail}}</view>
+    </view>
+
+    <view class="script-box">
+      <view class="script-lbl">已帮你写好，可直接发给客服</view>
+      <view class="script-text">{{script}}</view>
+      <view class="script-copy" bindtap="onCopyScript">复制话术</view>
+    </view>
+
+    <view class="try-block">
+      <view class="try-title">收到衣服后，试穿时再看这几点</view>
+      <checkbox-group bindchange="onTryChange">
+        <label wx:for="{{tryOn}}" wx:key="text" class="try-item">
+          <checkbox class="try-ck" value="{{index}}" checked="{{item.checked}}" color="{{ckColor}}"></checkbox>
+          <text class="try-text {{item.checked ? 'on' : ''}}">{{item.text}}</text>
+        </label>
+      </checkbox-group>
+    </view>
+
+    <view class="link-wrap" bindtap="onIdeal">
+      <text class="btn-link">看看理想款长什么样 →</text>
+    </view>
+    <view class="link-wrap" bindtap="onAgain">
+      <text class="btn-link">← 再分析一件</text>
     </view>
   </view>
 
-  <view class="script-box">
-    <view class="script-lbl">已帮你写好，可直接发给客服</view>
-    <view class="script-text">{{script}}</view>
-    <view class="script-copy" bindtap="onCopyScript">复制话术</view>
-  </view>
-
-  <view class="try-block">
-    <view class="try-title">收到衣服后，试穿时再看这几点</view>
-    <checkbox-group bindchange="onTryChange">
-      <label wx:for="{{tryOn}}" wx:key="text" class="try-item">
-        <checkbox class="try-ck" value="{{index}}" checked="{{item.checked}}" color="#1A1A1A"></checkbox>
-        <text class="try-text {{item.checked ? 'on' : ''}}">{{item.text}}</text>
-      </label>
-    </checkbox-group>
-  </view>
-
-  <view class="link-wrap" bindtap="onIdeal">
-    <text class="btn-link">看看理想款长什么样 →</text>
-  </view>
-  <view class="link-wrap" bindtap="onAgain">
-    <text class="btn-link">← 再分析一件</text>
-  </view>
 </view>
