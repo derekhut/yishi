@@ -32,7 +32,7 @@ ok(Array.isArray(appJson.pages) && appJson.pages.length === 5, '注册 5 个页�
 const expected = ['pages/profile/index', 'pages/add/index', 'pages/result/index', 'pages/confirm/index', 'pages/ideal/index'];
 expected.forEach(p => ok(appJson.pages.includes(p), '包含 ' + p));
 ok(appJson.pages[0] === 'pages/profile/index', '首页为 profile');
-ok(appJson.window && appJson.window.navigationBarTitleText === '衣适', '窗口标题为「衣适」');
+ok(appJson.window && appJson.window.navigationBarTitleText === '穿的顺', '窗口标题为「穿的顺」');
 ok(appJson.window && appJson.window.backgroundColor === '#FFFFFF', '窗口背景纯白');
 ok(appJson.style === 'v2', '使用 v2 样式');
 ok(appJson.sitemapLocation === 'sitemap.json', '指向 sitemap');
