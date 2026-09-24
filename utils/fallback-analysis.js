@@ -1,7 +1,10 @@
-// 前端兜底示例数据。
-// 云函数不可用（未部署 / 网络异常 / 返回异常）时，页面用这份数据继续渲染，保证演示不中断。
-// 注意：这里与 cloudfunctions/analyze/lib/sample.js 有意保持一致的判断口径，
-// 但云函数目录不参与小程序打包，无法直接复用，故各自实现一份。
+// 示例数据的**唯一来源**（前端兜底用）。
+// 云函数不可用（未部署 / 网络异常 / 返回异常）时，页面用这份数据继续渲染。
+//
+// 云函数那份在 cloudfunctions/analyze/lib/sample.js，由 `node tools/build-sample.js`
+// 从本文件生成 —— 云函数目录不参与小程序打包、也 require 不到上级目录，
+// 所以物理上必须有两份文件，但**口径只有这一份**。
+// 改了这里请跑一次生成脚本；忘了跑，`tests/check-sample-sync.js` 会变红。
 
 function has(difficulties, key) {
   return (difficulties || []).indexOf(key) >= 0;
