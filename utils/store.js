@@ -4,6 +4,12 @@ const SETTINGS_KEY = 'yishi_settings';
 const DIFFICULTIES = ['buttons', 'liftArm', 'bend'];
 const DEFAULT_WHO = '妈妈';
 
+/**
+ * 示例专用资料。它**不写进 storage** —— 看示例不该改动用户自己的资料。
+ * 首屏那条「先看个示例」走的就是它，所以点一下就能看到结果，不用先填表单。
+ */
+const SAMPLE_PROFILE = { who: '妈妈', difficulties: ['buttons'] };
+
 function defaultProfile() {
   return { who: DEFAULT_WHO, difficulties: [] };
 }
@@ -99,6 +105,7 @@ module.exports = {
   SETTINGS_KEY,
   DIFFICULTIES,
   DEFAULT_WHO,
+  SAMPLE_PROFILE,
   defaultProfile,
   isValidProfile,
   normalizeProfile,

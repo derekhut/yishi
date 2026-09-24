@@ -28,6 +28,10 @@
 
     <button class="btn-main" bindtap="onNext">下一步</button>
 
+    <view class="link-wrap" bindtap="onSample">
+      <text class="btn-link">还不清楚要填什么？先看个示例 →</text>
+    </view>
+
     <view class="eye-row">
       <view class="eye-text">
         <view class="eye-t1">护眼模式</view>

@@ -69,5 +69,11 @@ Page({
 
     store.saveProfile(wx, { who: this.data.who, difficulties: difficulties });
     wx.navigateTo({ url: '/pages/add/index' });
+  },
+
+  // 首屏就能看到东西：不想先填表单的人（演示时的评委也是）点这里直接看示例。
+  // 示例资料不写进 storage，所以不会盖掉用户自己的设置。
+  onSample() {
+    wx.navigateTo({ url: '/pages/result/index?example=1' });
   }
 });

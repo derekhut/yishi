@@ -1,6 +1,7 @@
 const cloud = require('wx-server-sdk');
 const analyze = require('./lib/analyze.js');
 const model = require('./lib/model.js');
+const cacheKey = require('./lib/cache-key.js');
 // 结构校验只有一份实现，在 lib/analyze.js 里（云函数不重复校验，
 // 两份规则必漂）。入口层只负责「临时链接 → 分析 → 返回」。
 const sample = require('./lib/sample.js');
@@ -15,15 +16,8 @@ const COLLECTION = 'analyses';
 const MODEL_TIMEOUT_MS = 22000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-function buildCacheId(fileID, profile) {
-  const difficulties = ((profile && profile.difficulties) || []).slice().sort().join('-');
-  const raw = String(fileID || 'example') + '|' + difficulties;
-  let hash = 0;
-  for (let i = 0; i < raw.length; i++) {
-    hash = (hash * 31 + raw.charCodeAt(i)) % 2147483647;
-  }
-  return 'a' + hash;
-}
+// 缓存键包含称呼在内的影响输出的资料，见 lib/cache-key.js
+const buildCacheId = cacheKey.buildCacheId;
 
 async function readCache(cacheId) {
   try {

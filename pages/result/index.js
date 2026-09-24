@@ -30,21 +30,27 @@ Page({
 
   onLoad(query) {
     theme.applyTheme(this, wx);
-    const profile = store.loadProfile(wx);
-    if (!store.isValidProfile(profile)) {
-      wx.redirectTo({ url: '/pages/profile/index' });
-      return;
-    }
-    this.profile = profile;
 
     const q = query || {};
     const isExample = String(q.example || '') === '1';
     const fileID = q.fileID ? decodeURIComponent(q.fileID) : '';
 
+    if (isExample) {
+      // 看示例不该被资料表单挡住，也不该改动用户自己的资料（不写 storage）
+      this.profile = store.SAMPLE_PROFILE;
+    } else {
+      const profile = store.loadProfile(wx);
+      if (!store.isValidProfile(profile)) {
+        wx.redirectTo({ url: '/pages/profile/index' });
+        return;
+      }
+      this.profile = profile;
+    }
+
     // 重试要用的还是原来那张照片，不能丢了 fileID 去重新分析一张空的
     this.fileID = fileID;
 
-    this.setData({ who: profile.who, loading: true });
+    this.setData({ who: this.profile.who, loading: true });
     this.loadAnalysis(fileID, isExample);
   },
 
