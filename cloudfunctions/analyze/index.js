@@ -8,7 +8,10 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 const COLLECTION = 'analyses';
-const MODEL_TIMEOUT_MS = 15000;
+// 单次模型请求预算。依据 T00 实测：六次带图请求耗时 15.264–17.303 秒
+// （见 docs/model-recon-20260918.md），原来的 15000 低于实际耗时，等于每次都卡着上限跑。
+// 云函数整体 timeout 在 config.json（60 秒），要装得下「两次尝试 + 下载/解析/缓存余量」。
+const MODEL_TIMEOUT_MS = 22000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 function buildCacheId(fileID, profile) {
