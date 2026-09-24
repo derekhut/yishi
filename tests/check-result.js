@@ -160,32 +160,52 @@ async function main() {
   ok(inRange, '示例标注坐标落在衣服本体范围内（不会飘到画外）');
 
   console.log('\n[7] 示例入口（example=1）');
-  wx1 = makeWx({ callResult: { ok: true, source: 'fallback', analysis: CLOUD_OK.analysis } });
+  // 示例是用户主动要看的那条路：本地直接出，不调云函数、更不调模型
+  wx1 = makeWx({ callResult: { ok: true, source: 'example', analysis: CLOUD_OK.analysis } });
   wx1._storage[store.KEY] = { who: '妈妈', difficulties: ['buttons'], updatedAt: Date.now() };
   ({ cfg, page } = loadResultPage(wx1));
   cfg.onLoad.call(page, { example: '1' });
   await page.loadAnalysis('', true);
-  ok(wx1._called[0].data.fileID === '', '示例路径不传 fileID');
-  ok(page.data.sampleNote === true, 'fallback 来源显示示例提示');
-  ok(page.data.source === 'fallback', '来源标记为 fallback');
+  ok(wx1._called.length === 0, '示例路径压根不调云函数（不会误触发模型）');
+  ok(page.data.sampleNote === true, '示例来源显示示例提示');
+  ok(page.data.source === 'example', '来源标记为 example');
 
-  console.log('\n[8] 云函数不可用时的前端兜底');
+  console.log('\n[8] 真实分析失败 → 诚实失败，不用示例顶上');
   wx1 = makeWx({ callError: { errMsg: 'cloud function not found' } });
   wx1._storage[store.KEY] = { who: '妈妈', difficulties: ['buttons'], updatedAt: Date.now() };
   ({ cfg, page } = loadResultPage(wx1));
   cfg.onLoad.call(page, { fileID: 'cloud://x/y.jpg' });
   await page.loadAnalysis('cloud://x/y.jpg', false);
   ok(page.data.loading === false, '异常后结束加载态');
-  ok(page.data.analysis && page.data.analysis.dims.length === 4, '使用前端兜底数据继续渲染');
-  ok(page.data.source === 'local-fallback', '来源标记为 local-fallback');
-  ok(page.data.sampleNote === true, '前端兜底同样显示示例提示');
+  // 契约变了：以前这里断言「改用前端兜底数据继续渲染」。
+  // 那是假装成功 —— 家属会以为这是模型看了自家衣服得出的结论。
+  ok(page.data.analysis === null, '不塞示例数据（analysis 为 null）');
+  ok(page.data.outcome.kind === 'failed', '进入失败态');
+  ok(page.data.outcome.title.indexOf('没分析出来') !== -1, '说的是「这次没分析出来」');
+  ok(
+    page.data.outcome.actions.some(a => a.key === 'retry') &&
+    page.data.outcome.actions.some(a => a.key === 'reselect'),
+    '给「再试一次」和「换一张照片」两个出口'
+  );
 
-  wx1 = makeWx({ callResult: { ok: false, message: '参数错误' } });
+  wx1 = makeWx({ callResult: { ok: false, source: 'failed', reason: '缺图' } });
   wx1._storage[store.KEY] = { who: '妈妈', difficulties: ['buttons'], updatedAt: Date.now() };
   ({ cfg, page } = loadResultPage(wx1));
   cfg.onLoad.call(page, { fileID: 'cloud://x/y.jpg' });
   await page.loadAnalysis('cloud://x/y.jpg', false);
-  ok(page.data.source === 'local-fallback', '云函数返回失败时也走前端兜底');
+  ok(page.data.outcome.kind === 'failed', '云函数说失败时也走失败态');
+  ok(page.data.analysis === null, '云函数失败同样不带示例数据');
+
+  console.log('\n[8b] 重试保留原来那张照片');
+  wx1 = makeWx({ callResult: CLOUD_OK });
+  wx1._storage[store.KEY] = { who: '妈妈', difficulties: ['buttons'], updatedAt: Date.now() };
+  ({ cfg, page } = loadResultPage(wx1));
+  cfg.onLoad.call(page, { fileID: 'cloud://x/y.jpg' });
+  await page.loadAnalysis('cloud://x/y.jpg', false);
+  page.onRetry();
+  await Promise.resolve();
+  const retryCall = wx1._called[wx1._called.length - 1];
+  ok(retryCall.data.fileID === 'cloud://x/y.jpg', '重试用的还是原来那张照片（不传空 fileID）');
 
   console.log('\n[9] 页面跳转与数据传递');
   wx1 = makeWx({ callResult: CLOUD_OK });

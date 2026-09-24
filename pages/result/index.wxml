@@ -10,7 +10,22 @@
     <view class="loading-sub">通常需要 10–20 秒</view>
   </view>
 
+  <view wx:elif="{{outcome.kind === 'failed' || outcome.kind === 'uncertain'}}" class="empty-block">
+    <view class="empty-title">{{outcome.title}}</view>
+    <view class="empty-detail">{{outcome.detail}}</view>
+    <button class="btn-main" bindtap="onRetry">再试一次</button>
+    <view class="link-wrap" bindtap="onReselect">
+      <text class="btn-link">换一张照片 →</text>
+    </view>
+    <view wx:if="{{outcome.reason}}" class="empty-reason">{{outcome.reason}}</view>
+  </view>
+
   <view wx:else class="page-body">
+    <view wx:if="{{outcome.kind === 'no-problem'}}" class="notice">
+      <view class="notice-title">{{outcome.title}}</view>
+      <view class="notice-detail">{{outcome.detail}}</view>
+    </view>
+
     <view class="sec-lbl"><text class="sec-num">01</text>好穿指数</view>
 
     <view class="score-row num">

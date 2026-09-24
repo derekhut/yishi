@@ -3,13 +3,9 @@ const format = require('../../utils/format.js');
 const fallback = require('../../utils/fallback-analysis.js');
 const config = require('../../utils/config.js');
 const theme = require('../../utils/theme.js');
+const state = require('../../utils/analyze-state.js');
 
-const SOURCE_LABEL = {
-  model: '真实分析',
-  cache: '真实分析',
-  fallback: '示例数据',
-  'local-fallback': '示例数据'
-};
+const SOURCE_LABEL = state.SOURCE_LABEL;
 
 Page({
   data: {
@@ -25,6 +21,7 @@ Page({
     scoreTone: 'warn',
     source: '',
     sampleNote: false,
+    outcome: { kind: 'result', title: '', detail: '', actions: [] },
     garmentImage: '/assets/garment-current.png',
     eyeCare: false,
     themeClass: '',
@@ -44,6 +41,9 @@ Page({
     const isExample = String(q.example || '') === '1';
     const fileID = q.fileID ? decodeURIComponent(q.fileID) : '';
 
+    // 重试要用的还是原来那张照片，不能丢了 fileID 去重新分析一张空的
+    this.fileID = fileID;
+
     this.setData({ who: profile.who, loading: true });
     this.loadAnalysis(fileID, isExample);
   },
@@ -51,9 +51,10 @@ Page({
   loadAnalysis(fileID, isExample) {
     const self = this;
 
-    if (config.FORCE_EXAMPLE) {
-      this.render(fallback.build(this.profile), 'local-fallback');
-      return Promise.resolve({ source: 'local-fallback' });
+    // 示例模式：用户主动要看示例，是合法的一条路（界面会写明「示例数据」）
+    if (config.FORCE_EXAMPLE || isExample) {
+      this.render(fallback.build(this.profile), 'example');
+      return Promise.resolve({ source: 'example' });
     }
 
     return wx.cloud.callFunction({
@@ -64,21 +65,45 @@ Page({
       }
     }).then(function (res) {
       const result = res && res.result;
+      // 云函数说失败就是失败：不把示例数据拿来顶上
       if (!result || result.ok !== true || !result.analysis) {
-        throw new Error((result && result.message) || '云函数返回异常');
+        self.showOutcome({
+          ok: false,
+          source: (result && result.source) || 'failed',
+          analysis: null,
+          reason: (result && result.reason) || '云函数返回异常'
+        });
+        return result;
       }
       self.render(result.analysis, result.source || 'model');
       return result;
     }).catch(function (err) {
       const reason = (err && (err.errMsg || err.message)) || '未知错误';
-      console.error('[result] 分析失败，改用本地示例数据：', reason);
-      self.render(fallback.build(self.profile), 'local-fallback');
-      return { source: 'local-fallback', reason: reason };
+      console.error('[result] 分析失败（不改用示例数据）：', reason);
+      self.showOutcome({ ok: false, source: 'failed', analysis: null, reason: reason });
+      return { source: 'failed', reason: reason };
+    });
+  },
+
+  showOutcome(input) {
+    const out = state.describeOutcome(input);
+    this.setData({
+      loading: false,
+      analysis: null,
+      outcome: out,
+      source: 'failed',
+      sourceLabel: state.SOURCE_LABEL.failed
     });
   },
 
   render(analysis, source) {
-    const isSample = source !== 'model' && source !== 'cache';
+    const isSample = state.isSampleSource(source);
+    // 真实结果里一条「需要注意」都没有时，说清是「这张照片里没看出」
+    const outcome = state.describeOutcome({
+      ok: true,
+      source: source,
+      analysis: analysis
+    });
     this.setData({
       loading: false,
       analysis: analysis,
@@ -88,18 +113,23 @@ Page({
       scoreTone: format.scoreTone(analysis.score),
       source: source,
       sourceLabel: SOURCE_LABEL[source] || '示例数据',
-      sampleNote: isSample
+      sampleNote: isSample,
+      outcome: outcome
     });
     store.saveAnalysis(wx, analysis);
   },
 
   onRetry() {
-    if (this.data.analysis) {
-      this.setData({ loading: true });
-      this.loadAnalysis('', false);
+    if (this.data.loading) {
+      wx.showToast({ title: '还在分析中，请稍候', icon: 'none' });
       return;
     }
-    wx.showToast({ title: '还在分析中，请稍候', icon: 'none' });
+    this.setData({ loading: true });
+    this.loadAnalysis(this.fileID || '', false);
+  },
+
+  onReselect() {
+    wx.redirectTo({ url: '/pages/add/index' });
   },
 
   onConfirm() {
