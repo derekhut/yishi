@@ -23,6 +23,9 @@ const analyze = require(path.join(LIB, 'analyze.js'));
 
 const PROFILE = { who: '妈妈', difficulties: ['buttons', 'liftArm'] };
 
+/** 失败路径一定会打日志（这是对的），测试里静音，免得刷屏 */
+const quietLog = { error: function () {}, warn: function () {} };
+
 function validAnalysis() {
   return {
     garment: { name: '针织开衫', category: 'top' },
@@ -165,42 +168,52 @@ async function main() {
   calls = 0;
   const retryDeps = {
     callModel: async () => { calls++; return calls === 1 ? '不是 JSON' : JSON.stringify(validAnalysis()); },
-    sampleFor: sample.sampleFor
+    sampleFor: sample.sampleFor,
+    log: quietLog
   };
-  res = await analyze.runAnalysis({ profile: PROFILE, deps: retryDeps });
+  // 真实分析必须有图：缺图时程序直接拦下，不会走到模型（见 check-analyze-defense.js）
+  res = await analyze.runAnalysis({ profile: PROFILE, imageBase64: 'AAA', deps: retryDeps });
   ok(calls === 2, '首次失败后重试一次');
   ok(res.source === 'model', '重试成功后来源为 model');
 
-  console.log('\n[8] 编排：两次都失败 → 兜底示例');
+  console.log('\n[8] 编排：两次都失败 → 诚实失败（不给示例）');
   calls = 0;
   const failDeps = {
     callModel: async () => { calls++; return '仍然不是 JSON'; },
-    sampleFor: sample.sampleFor
+    sampleFor: sample.sampleFor,
+    log: quietLog
   };
-  res = await analyze.runAnalysis({ profile: PROFILE, deps: failDeps });
+  res = await analyze.runAnalysis({ profile: PROFILE, imageBase64: 'AAA', deps: failDeps });
   ok(calls === 2, '失败时尝试两次后放弃');
-  ok(res.ok === true, '兜底也是 ok（界面不中断）');
-  ok(res.source === 'fallback', '来源标记为 fallback');
-  ok(schema.validateAnalysis(res.analysis).ok === true, '兜底数据合法可渲染');
+  // 契约变了：以前这里断言「兜底也是 ok:true + 示例数据」，那是假装成功。
+  // 现在失败就是失败，界面去说「这次没读出来」并给重试出口。
+  ok(res.ok === false, '失败就是失败，不返回 ok:true');
+  ok(res.source === 'failed', '来源标记为 failed');
+  ok(res.analysis === null, '不带任何示例数据（避免被当成真实结果）');
   ok(!!res.reason, '记录失败原因便于排查');
 
   console.log('\n[9] 编排：模型抛异常（超时/网络）');
   const throwDeps = {
     callModel: async () => { throw new Error('请求超时'); },
-    sampleFor: sample.sampleFor
+    sampleFor: sample.sampleFor,
+    log: quietLog
   };
-  res = await analyze.runAnalysis({ profile: PROFILE, deps: throwDeps });
-  ok(res.source === 'fallback', '异常时走兜底');
+  res = await analyze.runAnalysis({ profile: PROFILE, imageBase64: 'AAA', deps: throwDeps });
+  ok(res.source === 'failed', '异常时诚实失败');
   ok(res.reason.indexOf('超时') >= 0, '原因包含异常信息');
 
-  console.log('\n[10] 编排：关键词兜底命中');
+  console.log('\n[10] 编排：示例模式是另一条路');
   const keywordDeps = {
     callModel: async () => { throw new Error('no api key'); },
     sampleFor: sample.sampleFor,
-    forceFallback: true
+    forceFallback: true,
+    log: quietLog
   };
   res = await analyze.runAnalysis({ profile: PROFILE, deps: keywordDeps });
-  ok(res.source === 'fallback', '强制兜底开关生效');
+  // 示例模式是用户主动要看示例，不是失败 —— 所以 ok:true，且来源标 example
+  ok(res.ok === true, '示例模式是 ok 的（它和失败是两条路）');
+  ok(res.source === 'example', '来源标记为 example');
+  ok(schema.validateAnalysis(res.analysis).ok === true, '示例数据合法可渲染');
 
   console.log('\n[11] 云函数入口结构');
   const indexSrc = read('cloudfunctions/analyze/index.js');

@@ -1,7 +1,8 @@
 const cloud = require('wx-server-sdk');
 const analyze = require('./lib/analyze.js');
 const model = require('./lib/model.js');
-const schema = require('./lib/schema.js');
+// 结构校验只有一份实现，在 lib/analyze.js 里（云函数不重复校验，
+// 两份规则必漂）。入口层只负责「临时链接 → 分析 → 返回」。
 const sample = require('./lib/sample.js');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
@@ -93,6 +94,8 @@ exports.main = async (event) => {
     const cfg = readModelConfig();
     const callModel = model.createCallModel(cfg);
 
+    // 三项模型配置不全时，真实分析无从谈起 —— 走示例模式（用户主动看示例的那条路），
+    // 界面会写明「示例数据」。它不是兜底：兜底是「这次没读出来」，示例是「给你看个样子」。
     const result = await analyze.runAnalysis({
       profile: profile,
       imageBase64: imageBase64,
@@ -103,27 +106,28 @@ exports.main = async (event) => {
       }
     });
 
-    const checked = schema.validateAnalysis(result.analysis);
-    const analysis = checked.ok ? checked.value : sample.sampleFor(profile);
-
-    if (result.source !== 'fallback') {
-      await writeCache(cacheId, fileID, analysis, result.source);
+    if (result.ok && result.source === 'model') {
+      await writeCache(cacheId, fileID, result.analysis, result.source);
     }
 
     return {
-      ok: true,
+      ok: result.ok,
       source: result.source,
       reason: result.reason || '',
-      analysis: analysis,
+      analysis: result.analysis,
+      attempts: result.attempts || 0,
       elapsed: Date.now() - started
     };
   } catch (err) {
+    // 第 4 层：连这条路都炸了，仍然返回结构合法的结果 —— 但 ok:false，
+    // 不把示例数据塞进来充当分析结果（界面靠 ok/source 区分，见 lib/analyze.js）
     console.error('[analyze] 未捕获异常：', err && err.message);
     return {
-      ok: true,
-      source: 'fallback',
+      ok: false,
+      source: 'failed',
       reason: (err && err.message) || '未知异常',
-      analysis: sample.sampleFor(profile),
+      analysis: null,
+      attempts: 0,
       elapsed: Date.now() - started
     };
   }
