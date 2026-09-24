@@ -37,9 +37,11 @@ const LOCAL_DIR = path.join(ROOT, '.local');
 const CONFIG_FILE = path.join(LOCAL_DIR, 'model.js');
 
 // 和云函数保持一致：超过这个时间就算超时。
-// 本地故意用同一个数字——如果本地都要 20 秒，云端一样会超时，
+// 本地故意用同一个数字——如果本地都要 22 秒，云端一样会超时，
 // 用更宽的超时只会给你虚假的安全感。要放宽得显式传 --timeout。
-const CLOUD_TIMEOUT_MS = 15000;
+// 云函数的值在 cloudfunctions/analyze/index.js（MODEL_TIMEOUT_MS），
+// 改那边记得同步这里；tests/check-cloud-config.js 守云函数侧的下限。
+const CLOUD_TIMEOUT_MS = 30000;
 
 const WARN = '#C77D2B';
 const GOOD = '#3D7A5F';
@@ -355,7 +357,8 @@ async function main() {
       baseUrl: cfg.baseUrl,
       apiKey: cfg.apiKey,
       model: cfg.model,
-      timeoutMs: opts.timeoutMs
+      timeoutMs: opts.timeoutMs,
+      reasoningEffort: cfg.reasoningEffort !== undefined ? cfg.reasoningEffort : 'none'
     });
 
     const started = Date.now();

@@ -8,12 +8,20 @@ function buildRequestBody(options) {
     ? prompt.attachImage(options.messages, 'data:image/jpeg;base64,' + options.imageBase64)
     : options.messages;
 
-  return {
+  const body = {
     model: options.model,
     messages: messages,
     temperature: 0.2,
     max_tokens: 1600
   };
+  // qwen3.8-max 这类思考模型默认会先思考再回答，非流式请求要等思考全部
+  // 生成完才返回 —— 完整提示词下 60 秒 0 字节（2026-09-24 实测）。
+  // 本项目要的是结构化 JSON 和响应速度，默认关思考；不是所有兼容接口
+  // 都认这个参数，所以可配置、不传则不带该字段（换模型时在配置里覆盖）。
+  if (options.reasoningEffort !== undefined) {
+    body.reasoning_effort = options.reasoningEffort;
+  }
+  return body;
 }
 
 function parseModelOutput(raw) {
@@ -109,7 +117,8 @@ function createCallModel(config) {
     const body = buildRequestBody({
       model: cfg.model,
       messages: messages,
-      imageBase64: opts.imageBase64
+      imageBase64: opts.imageBase64,
+      reasoningEffort: cfg.reasoningEffort
     });
 
     const headers = { Authorization: 'Bearer ' + cfg.apiKey };

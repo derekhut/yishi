@@ -13,7 +13,7 @@ const COLLECTION = 'analyses';
 // 单次模型请求预算。依据 T00 实测：六次带图请求耗时 15.264–17.303 秒
 // （见 docs/model-recon-20260918.md），原来的 15000 低于实际耗时，等于每次都卡着上限跑。
 // 云函数整体 timeout 在 config.json（60 秒），要装得下「两次尝试 + 下载/解析/缓存余量」。
-const MODEL_TIMEOUT_MS = 22000;
+const MODEL_TIMEOUT_MS = 30000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 // 缓存键包含称呼在内的影响输出的资料，见 lib/cache-key.js
@@ -65,7 +65,13 @@ function readModelConfig() {
     baseUrl: process.env.MODEL_BASE_URL || '',
     apiKey: process.env.MODEL_API_KEY || '',
     model: process.env.MODEL_NAME || '',
-    timeoutMs: MODEL_TIMEOUT_MS
+    timeoutMs: MODEL_TIMEOUT_MS,
+    // 思考模型（qwen3.8-max 等）默认开思考会把非流式响应拖到超时
+    // （2026-09-24 实测：不加 60 秒 0 字节，加 14 秒返回）。默认关，
+    // 换不支持该参数的模型时用环境变量 MODEL_REASONING_EFFORT 覆盖。
+    reasoningEffort: process.env.MODEL_REASONING_EFFORT !== undefined
+      ? process.env.MODEL_REASONING_EFFORT
+      : 'none'
   };
 }
 
