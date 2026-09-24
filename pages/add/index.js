@@ -67,7 +67,7 @@ Page({
   reportUploadError(err) {
     const hint = (err && err.hint) || '请重试';
     const raw = (err && err.message) || String(err || '');
-    console.error('[衣适] 图片上传失败：', raw, '| 建议：', hint);
+    console.error('[add] 图片上传失败：', raw, '| 建议：', hint);
     wx.showToast({ title: '上传失败，' + hint, icon: 'none', duration: 3000 });
   },
 

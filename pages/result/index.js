@@ -71,7 +71,7 @@ Page({
       return result;
     }).catch(function (err) {
       const reason = (err && (err.errMsg || err.message)) || '未知错误';
-      console.error('[衣适] 分析失败，改用本地示例数据：', reason);
+      console.error('[result] 分析失败，改用本地示例数据：', reason);
       self.render(fallback.build(self.profile), 'local-fallback');
       return { source: 'local-fallback', reason: reason };
     });
