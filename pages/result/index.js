@@ -4,6 +4,7 @@ const fallback = require('../../utils/fallback-analysis.js');
 const config = require('../../utils/config.js');
 const theme = require('../../utils/theme.js');
 const state = require('../../utils/analyze-state.js');
+const photo = require('../../utils/photo.js');
 
 const SOURCE_LABEL = state.SOURCE_LABEL;
 
@@ -22,7 +23,12 @@ Page({
     source: '',
     sampleNote: false,
     outcome: { kind: 'result', title: '', detail: '', actions: [] },
-    garmentImage: '/assets/garment-current.png',
+    // 图上放的一定是这次分析用的那张照片：示例配配套图，真实配用户拍的那张
+    photoSrc: '',
+    photoKind: 'none',
+    photoLoading: false,
+    photoFailed: false,
+    markerCaption: '',
     eyeCare: false,
     themeClass: '',
     ckColor: theme.THEME.light.ink
@@ -98,7 +104,42 @@ Page({
       analysis: null,
       outcome: out,
       source: 'failed',
-      sourceLabel: state.SOURCE_LABEL.failed
+      sourceLabel: state.SOURCE_LABEL.failed,
+      photoSrc: '',
+      photoLoading: false,
+      photoFailed: false,
+      markersView: []
+    });
+  },
+
+  /**
+   * 照片与标注一起上：照片没显示出来就不画标注，
+   * 免得几个点飘在占位块上，像是标到了什么东西。
+   */
+  applyPhoto(view, markers) {
+    const src = view.src || '';
+    const shown = src ? markers : [];
+    this.setData({
+      photoKind: view.kind,
+      photoSrc: src,
+      markersView: shown,
+      markerCaption: format.markerCaption(shown, !!src)
+    });
+  },
+
+  loadPhoto(source, markers) {
+    const self = this;
+    const view = photo.resolvePhoto({ source: source, fileID: this.fileID });
+    this.setData({ photoLoading: view.kind === 'file' });
+    this.applyPhoto(view, markers);
+
+    if (view.kind !== 'file') return Promise.resolve(null);
+
+    return photo.fetchPhotoUrl(wx, view.fileID).then(function (url) {
+      self.setData({ photoLoading: false, photoFailed: !url });
+      // 取不回来就空着：不换成配套图，那是另一件衣服
+      self.applyPhoto(url ? { kind: view.kind, src: url, fileID: view.fileID } : view, markers);
+      return url;
     });
   },
 
@@ -110,11 +151,12 @@ Page({
       source: source,
       analysis: analysis
     });
+    const markers = format.markersView(analysis.markers);
     this.setData({
       loading: false,
       analysis: analysis,
       dimsView: format.dimsView(analysis.dims),
-      markersView: format.markersView(analysis.markers),
+      markersView: [],
       findings: format.findingsView(analysis.findings),
       scoreTone: format.scoreTone(analysis.score),
       source: source,
@@ -122,6 +164,8 @@ Page({
       sampleNote: isSample,
       outcome: outcome
     });
+    this.loadPhoto(source, markers);
+
     // 存的是完整记录（来源、照片、资料快照、时间、版本），下游页面靠它判断还能不能用
     store.saveRecord(wx, {
       analysis: analysis,
@@ -136,7 +180,7 @@ Page({
       wx.showToast({ title: '还在分析中，请稍候', icon: 'none' });
       return;
     }
-    this.setData({ loading: true });
+    this.setData({ loading: true, photoFailed: false });
     this.loadAnalysis(this.fileID || '', false);
   },
 

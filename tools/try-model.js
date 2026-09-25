@@ -182,15 +182,43 @@ async function drawMarkers(imagePath, analysis, outPath) {
   const r = Math.max(11, Math.round(Math.min(w, h) * 0.028));
   const markers = (analysis.markers || []);
 
+  // 模型给的文本直接拼进 SVG：不转义的话，一个 & 或 < 就能让整张预览图废掉
+  function escapeXml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // 和界面保持一致：有部位名就画成写名字的胶囊，没有才退回数字圆点
   const parts = markers.map(function (m, i) {
     const cx = Math.round((m.x / 100) * w);
     const cy = Math.round((m.y / 100) * h);
     const color = m.type === 'warn' ? WARN : GOOD;
+    const label = typeof m.label === 'string' ? m.label.trim() : '';
+    const font = 'font-family="-apple-system, Helvetica, sans-serif"';
+
+    if (!label) {
+      return [
+        '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + color + '" fill-opacity="0.92" stroke="#FFFFFF" stroke-width="2"/>',
+        '<text x="' + cx + '" y="' + cy + '" font-size="' + Math.round(r * 1.15) +
+          '" font-weight="500" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" ' +
+          font + '>' + (i + 1) + '</text>'
+      ].join('');
+    }
+
+    const fontSize = Math.max(16, Math.round(r * 0.95));
+    const padX = Math.round(fontSize * 0.55);
+    const boxW = Math.round(label.length * fontSize + padX * 2);
+    const boxH = Math.round(fontSize * 1.9);
     return [
-      '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + color + '" fill-opacity="0.92" stroke="#FFFFFF" stroke-width="2"/>',
-      '<text x="' + cx + '" y="' + cy + '" font-size="' + Math.round(r * 1.15) +
+      '<rect x="' + (cx - boxW / 2) + '" y="' + (cy - boxH / 2) + '" width="' + boxW +
+        '" height="' + boxH + '" rx="' + Math.round(boxH / 2) + '" fill="' + color +
+        '" fill-opacity="0.92" stroke="#FFFFFF" stroke-width="2"/>',
+      '<text x="' + cx + '" y="' + cy + '" font-size="' + fontSize +
         '" font-weight="500" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" ' +
-        'font-family="-apple-system, Helvetica, sans-serif">' + (i + 1) + '</text>'
+        font + '>' + escapeXml(label) + '</text>'
     ].join('');
   }).join('');
 
@@ -450,19 +478,22 @@ async function main() {
       console.log('  这些百分比是**相对你给的这张照片**的，和小程序里一样。');
     }
     console.log('');
-    console.log('    #   类型     x%     y%');
+    console.log('    #   类型     x%     y%   部位名（界面上就写这个）');
     markers.forEach(function (m, i) {
+      const label = m.label ? m.label : '（没给，界面退回数字）';
       console.log('    ' + (i + 1) + '   ' + String(m.type).padEnd(6) + '  ' +
-        String(m.x).padStart(4) + '   ' + String(m.y).padStart(4));
+        String(m.x).padStart(4) + '   ' + String(m.y).padStart(4) + '   ' + label);
     });
-    const outOfRange = markers.filter(function (m) {
-      return m.x < 15 || m.x > 85 || m.y < 12 || m.y > 88;
-    });
-    if (outOfRange.length) {
+    const noLabel = markers.filter(function (m) { return !m.label; });
+    if (noLabel.length) {
       console.log('');
-      console.log('  ⚠ 有 ' + outOfRange.length + ' 个点落在提示词约定的范围之外');
-      console.log('    （衣服应占横向 15%-85%、纵向 12%-88%）——大概率飘到背景上了。');
+      console.log('  ⚠ 有 ' + noLabel.length + ' 个点没给部位名（界面会退回数字编号）。');
     }
+    // 提示词已经不再假定「衣服占画面固定范围」（T05 删掉了这条），
+    // 所以这里也不该再拿一个固定范围去判对错 —— 看预览图，人工核。
+    console.log('');
+    console.log('  提示词不再假定衣服占固定范围，所以这里不给「越界」判定；');
+    console.log('  点到底压没压在所说的部位上，看下面那张预览图。');
   }
 
   if (!opts.noImage && markers.length) {
@@ -470,12 +501,11 @@ async function main() {
     const target = await drawMarkers(opts.image, analysis, opts.out);
     if (target) {
       console.log('  已写出 ' + path.relative(ROOT, target));
-      console.log('  橙色 = 需要注意，绿色 = 省力，数字和上面 7 的顺序一致。');
+      console.log('  橙色 = 需要注意，绿色 = 省力；写的是部位名，和上面 7 的顺序一致。');
       console.log('');
       console.log('  注意：这张预览图是把坐标**直接按百分比画在照片上**，');
       console.log('  所以它反映的是模型给的坐标准不准。');
-      console.log('  小程序里还会额外叠一层容器偏移（结果页 .garment-wrap 有 24rpx 上下内边距），');
-      console.log('  那是另一个问题，不在这张图里体现。');
+      console.log('  小程序里也是按百分比定位（图片 widthFix、容器不带内边距），口径一致。');
     }
   }
 

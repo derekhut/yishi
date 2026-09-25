@@ -53,16 +53,21 @@
     <view class="sec-gap">
       <view class="sec-lbl"><text class="sec-num">02</text>结构分析</view>
 
-      <view class="garment-wrap">
-        <image class="garment" src="{{garmentImage}}" mode="widthFix"></image>
+      <view wx:if="{{photoKind !== 'none'}}" class="garment-wrap">
+        <image wx:if="{{photoSrc}}" class="garment" src="{{photoSrc}}" mode="widthFix"></image>
+        <view wx:elif="{{photoLoading}}" class="photo-missing">正在取回这张照片…</view>
+        <view wx:else class="photo-missing">
+          <view class="photo-missing-title">{{photoKind === 'file' ? '原图没能显示出来' : '没有这次的照片'}}</view>
+          <view class="photo-missing-detail">可能是网络问题。下面的结论仍然来自这次分析。</view>
+        </view>
         <view
           wx:for="{{markersView}}"
           wx:key="index"
-          class="marker {{item.cls}}"
+          class="marker {{item.cls}} {{item.label ? 'tag' : ''}}"
           style="left: {{item.left}}; top: {{item.top}}"
         >{{item.label}}</view>
       </view>
-      <view class="garment-caption">橙色数字对应下面需要留意的地方</view>
+      <view wx:if="{{photoKind !== 'none'}}" class="garment-caption">{{markerCaption}}</view>
 
       <view class="findings">
         <view wx:for="{{findings}}" wx:key="title" class="finding">

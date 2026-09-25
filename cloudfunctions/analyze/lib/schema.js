@@ -39,7 +39,9 @@ function normalizeMarker(raw) {
   return {
     x: Math.max(0, Math.min(100, Math.round(x))),
     y: Math.max(0, Math.min(100, Math.round(y))),
-    type: type
+    type: type,
+    // 部位名（「门襟纽扣」「左袖口」）。模型没给就留空，前端改用数字编号。
+    label: cleanText(raw.label, 6)
   };
 }
 

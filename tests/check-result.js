@@ -37,6 +37,11 @@ function makeWx(options) {
         api._called.push(o);
         if (api._callError) return Promise.reject(api._callError);
         return Promise.resolve({ result: api._callResult });
+      },
+      getTempFileURL(o) {
+        api._tempCalls = (api._tempCalls || 0) + 1;
+        const fileID = (o && o.fileList && o.fileList[0]) || '';
+        return Promise.resolve({ fileList: [{ fileID: fileID, tempFileURL: 'https://tmp.example/y.jpg' }] });
       }
     }
   };
@@ -62,6 +67,11 @@ const CLOUD_OK = {
   source: 'model',
   analysis: fallbackAnalysis.build({ who: '妈妈', difficulties: ['buttons', 'liftArm'] })
 };
+
+/** 取图是 Promise 链，等它跑完再看界面上的最终状态 */
+function flush() {
+  return new Promise(function (resolve) { setImmediate(resolve); });
+}
 
 async function main() {
   console.log('\n[1] utils/format.js 纯逻辑');
@@ -133,6 +143,9 @@ async function main() {
   ok(page.data.analysis.score === CLOUD_OK.analysis.score, '渲染模型返回的分数');
   ok(page.data.source === 'model', '记录来源');
   ok(page.data.sampleNote === false, '真实结果不显示示例提示');
+  // 原图取回来之后标注才画上去：照片没显示时不能先把点画在占位块上
+  await flush();
+  ok(page.data.photoSrc === 'https://tmp.example/y.jpg', '结果页显示这次拍的那张照片');
 
   console.log('\n[6] 视图数据加工');
   ok(page.data.dimsView.length === 4, '四个分项渲染数据');
@@ -143,9 +156,13 @@ async function main() {
   ok(page.data.scoreTone === 'warn', '73 分结论样式为 warn');
 
   console.log('\n[6b] 标注编号与落点');
+  // 契约变了：图上写的是部位名（「门襟纽扣」比一个橙色「2」好认），
+  // 只有模型没给部位名时才退回编号 —— 编号那条路在下面单独喂数据测。
   const warnLabels = page.data.markersView.filter(m => m.cls === 'warn').map(m => m.label);
-  ok(warnLabels.length === 1 && warnLabels[0] === '1', '警示标注按顺序从 1 编号');
-  ok(page.data.markersView.filter(m => m.cls === 'ok').every(m => m.label === ''), '正向标注不显示编号');
+  ok(warnLabels.length === 1 && warnLabels[0].length > 0 && !/^\d+$/.test(warnLabels[0]),
+    '警示标注写的是部位名');
+  ok(page.data.markersView.filter(m => m.cls === 'ok').every(m => m.label.length > 0),
+    '省力部位同样标出名字');
 
   const twoWarns = format.markersView([
     { x: 50, y: 40, type: 'warn' },

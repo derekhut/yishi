@@ -128,10 +128,11 @@
   margin-top: 80rpx;
 }
 
+/* 不要给这个容器加纵向 padding：标注是相对它的百分比定位，
+   有了 padding，图片会往下挪，标注却还是按整个容器算，整体就偏了。 */
 .garment-wrap {
   position: relative;
   margin-top: 48rpx;
-  padding: 24rpx 0;
 }
 
 .garment {
@@ -154,6 +155,48 @@
 .marker.ok {
   background: var(--paper);
   border: 3rpx solid var(--good);
+}
+
+/* 写了部位名的标注是个小胶囊，不是圆点 */
+.marker.tag {
+  width: auto;
+  height: auto;
+  min-width: 48rpx;
+  padding: 8rpx 18rpx;
+  border-radius: 28rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.marker.tag.ok {
+  background: var(--paper);
+  border: 3rpx solid var(--good);
+  color: var(--good);
+}
+
+.marker.tag.ok::after {
+  display: none;
+}
+
+.photo-missing {
+  padding: 80rpx 32rpx;
+  background: var(--soft);
+  text-align: center;
+  font-size: 30rpx;
+  color: var(--ink-2);
+}
+
+.photo-missing-title {
+  font-size: 32rpx;
+  color: var(--ink);
+  margin-bottom: 12rpx;
+}
+
+.photo-missing-detail {
+  font-size: 28rpx;
+  color: var(--ink-3);
+  line-height: 1.6;
 }
 
 .marker.ok::after {

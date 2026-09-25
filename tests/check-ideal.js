@@ -29,6 +29,13 @@ function makeWx() {
     navigateBack() { this._nav = { back: true }; },
     redirectTo(o) { this._nav = o; this._redirected = true; },
     showToast(o) { this._toast = o; },
+    cloud: {
+      getTempFileURL(o) {
+        api._tempCalls = (api._tempCalls || 0) + 1;
+        const fileID = (o && o.fileList && o.fileList[0]) || '';
+        return Promise.resolve({ fileList: [{ fileID: fileID, tempFileURL: 'https://tmp.example/y.jpg' }] });
+      }
+    },
     setClipboardData(o) {
       api._clipboard = o.data;
       if (o.success) o.success({});
@@ -69,7 +76,12 @@ function seed(wxMock, options) {
   return wxMock;
 }
 
-function main() {
+/** 左栏那张照片是异步取回来的，等它跑完再看最终状态 */
+function flush() {
+  return new Promise(function (resolve) { setImmediate(resolve); });
+}
+
+async function main() {
   console.log('\n[1] 页面守卫');
   let wx1 = makeWx();
   let { cfg, page } = loadIdealPage(wx1);
@@ -84,10 +96,11 @@ function main() {
 
   console.log('\n[2] 双栏渲染');
   wx1 = makeWx();
-  seed(wx1);
+  seed(wx1, { fileID: 'cloud://x/y.jpg' });
   const analysis = store.loadRecord(wx1).analysis;
   ({ cfg, page } = loadIdealPage(wx1));
   cfg.onLoad.call(page);
+  await flush();
   ok(page.data.who === '妈妈', '读取画像对象名');
   ok(page.data.loaded === true, '标记数据就绪');
   ok(page.data.garmentName === analysis.garment.name, '左栏显示当前件名称');
@@ -98,8 +111,10 @@ function main() {
   ok(page.data.idealFeatures[0].title === analysis.idealFeatures[0].title, '特征标题来自分析结果');
   ok(page.data.idealGap === analysis.idealGap, '显示差距说明');
   ok(page.data.idealScript === analysis.idealScript, '理想款询问话术来自分析结果');
-  ok(page.data.imageCurrent.indexOf('garment-current') > 0, '左栏使用当前件款式图');
-  ok(page.data.imageIdeal.indexOf('garment-ideal') > 0, '右栏使用理想款款式图');
+  // 左栏放的是这次分析用的那张照片 —— 真实结果不能拿配套款式图顶上，那是另一件衣服
+  ok(page.data.imageCurrent === 'https://tmp.example/y.jpg', '左栏显示这次拍的那张照片');
+  ok(page.data.currentPhotoLabel.indexOf('这次') >= 0, '左栏标明这是这次拍的');
+  ok(page.data.imageIdeal.indexOf('garment-ideal') > 0, '右栏使用理想款示意图');
 
   console.log('\n[3] 编号兜底');
   wx1 = makeWx();

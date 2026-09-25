@@ -69,11 +69,16 @@ function buildFindings(difficulties) {
 
 // 坐标口径必须与 cloudfunctions/analyze/lib/sample.js 完全一致：
 // 相对 assets/garment-current.png（viewBox="52 34 196 196"）的百分比位置。
+// label 是部位名 —— 图上写「门襟纽扣」比写一个橙色「2」好认，老人不用去对编号。
 function buildMarkers(difficulties) {
   const markers = [];
-  if (has(difficulties, 'liftArm')) markers.push({ x: 41, y: 16, type: 'good' });
-  markers.push({ x: 50, y: 62, type: has(difficulties, 'buttons') ? 'warn' : 'good' });
-  markers.push({ x: 18, y: 61, type: 'good' });
+  if (has(difficulties, 'liftArm')) markers.push({ x: 41, y: 16, type: 'good', label: '前开襟' });
+  markers.push({
+    x: 50, y: 62,
+    type: has(difficulties, 'buttons') ? 'warn' : 'good',
+    label: has(difficulties, 'buttons') ? '门襟纽扣' : '门襟'
+  });
+  markers.push({ x: 18, y: 61, type: 'good', label: '袖口' });
   return markers;
 }
 

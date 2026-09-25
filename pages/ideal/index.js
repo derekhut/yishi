@@ -1,5 +1,6 @@
 const store = require('../../utils/store.js');
 const theme = require('../../utils/theme.js');
+const photo = require('../../utils/photo.js');
 
 // 左栏最多列 3 条，再多就成了信息墙，反而看不清重点。
 const MAX_FACTS = 3;
@@ -43,7 +44,8 @@ Page({
     loaded: false,
     garmentName: '',
     score: '—',
-    imageCurrent: '/assets/garment-current.png',
+    imageCurrent: '',
+    currentPhotoLabel: '',
     imageIdeal: '/assets/garment-ideal.png',
     currentFacts: [],
     idealFeatures: [],
@@ -56,6 +58,7 @@ Page({
 
   onLoad() {
     theme.applyTheme(this, wx);
+    const self = this;
     const profile = store.loadProfile(wx);
     if (!store.isValidProfile(profile)) {
       wx.redirectTo({ url: '/pages/profile/index' });
@@ -71,6 +74,19 @@ Page({
     this.record = record;
 
     const analysis = record.analysis;
+
+    // 左栏放这次分析用的那张照片：真实取原图，示例取配套图
+    const view = photo.resolvePhoto({ source: record.source, fileID: record.fileID });
+    this.setData({
+      imageCurrent: view.src,
+      currentPhotoLabel: view.isSample ? '示例图' : (view.kind === 'file' ? '这次拍的' : '没有照片')
+    });
+    if (view.kind === 'file') {
+      photo.fetchPhotoUrl(wx, view.fileID).then(function (url) {
+        // 取不回来就空着，不换成配套图 —— 那是另一件衣服
+        if (url) self.setData({ imageCurrent: url });
+      });
+    }
 
     const garment = analysis.garment || {};
     const idealFeatures = featuresView(analysis.idealFeatures);

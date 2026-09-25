@@ -11,9 +11,10 @@
     <view class="compare">
       <view class="cmp-col">
         <view class="cmp-frame">
-          <image class="cmp-img" src="{{imageCurrent}}" mode="aspectFit"></image>
+          <image wx:if="{{imageCurrent}}" class="cmp-img" src="{{imageCurrent}}" mode="aspectFit"></image>
+          <view wx:else class="cmp-missing">照片没能显示</view>
         </view>
-        <view class="cmp-lbl">现在这件</view>
+        <view class="cmp-lbl">{{currentPhotoLabel}}</view>
         <view class="cmp-name">{{garmentName}}</view>
         <view class="cmp-meta num">{{score}} 分</view>
       </view>
@@ -21,7 +22,7 @@
         <view class="cmp-frame">
           <image class="cmp-img" src="{{imageIdeal}}" mode="widthFix"></image>
         </view>
-        <view class="cmp-lbl">理想结构</view>
+        <view class="cmp-lbl">结构示意</view>
         <view class="cmp-name">更省力的选择</view>
         <view class="cmp-meta num">{{idealFeatures.length}} 处更省力</view>
       </view>
