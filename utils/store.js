@@ -52,25 +52,81 @@ function saveProfile(wxApi, profile) {
   return record;
 }
 
-function saveAnalysis(wxApi, analysis) {
+// —— 分析记录（T01）——
+//
+// 以前只把 analysis 本身塞进 storage，于是两件事会出错：
+//   1. 结果页知道来源是「真实/示例」，翻到确认页、对比页就丢了；
+//   2. 换了照片或换了一个人，下游页面仍拿上一份结果渲染（混合结果）。
+// 所以记录自带「谁、什么时候、哪张照片、什么方式得出的、第几版」，
+// 下游页面用 isCompatibleRecord 一眼判断还能不能用。
+
+/** 改记录结构就 +1。老记录没有这个字段，会被判为不相容并引导重新分析 */
+const RECORD_VERSION = 1;
+
+function buildRecord(input) {
+  const data = input || {};
+  const profile = normalizeProfile(data.profile) || { who: DEFAULT_WHO, difficulties: [] };
+  return {
+    analysisVersion: RECORD_VERSION,
+    fileID: String(data.fileID || ''),
+    profile: { who: profile.who, difficulties: profile.difficulties.slice() },
+    source: String(data.source || 'model'),
+    createdAt: Date.now(),
+    analysis: data.analysis || null
+  };
+}
+
+function sameDifficulties(a, b) {
+  const x = ((a && a.difficulties) || []).slice().sort().join('-');
+  const y = ((b && b.difficulties) || []).slice().sort().join('-');
+  return x === y;
+}
+
+/**
+ * 这份记录还能不能给「现在的照片 + 现在的资料」用。
+ * 换照片、换人、换动作难点、版本对不上 —— 都不能用，得重新分析。
+ */
+function isCompatibleRecord(record, expected) {
+  if (!record || typeof record !== 'object' || Array.isArray(record)) return false;
+  if (record.analysisVersion !== RECORD_VERSION) return false;
+  if (!record.analysis || !Array.isArray(record.analysis.dims)) return false;
+  const want = expected || {};
+  if (String(record.fileID || '') !== String(want.fileID || '')) return false;
+  if (!record.profile || !want.profile) return false;
+  if (record.profile.who !== want.profile.who) return false;
+  if (!sameDifficulties(record.profile, want.profile)) return false;
+  return true;
+}
+
+function saveRecord(wxApi, input) {
+  const record = (input && input.analysisVersion !== undefined) ? input : buildRecord(input);
   try {
-    if (!analysis || typeof analysis !== 'object' || !Array.isArray(analysis.dims)) return false;
-    wxApi.setStorageSync(ANALYSIS_KEY, analysis);
+    // 失败时 analysis 为 null：不写记录，免得下游页面拿到一份空结果还以为有
+    if (!record || !record.analysis || !Array.isArray(record.analysis.dims)) return false;
+    if (record.analysisVersion !== RECORD_VERSION) return false;
+    wxApi.setStorageSync(ANALYSIS_KEY, record);
     return true;
   } catch (err) {
     return false;
   }
 }
 
-function loadAnalysis(wxApi) {
+function loadRecord(wxApi) {
   try {
     const value = wxApi.getStorageSync(ANALYSIS_KEY);
     if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-    if (typeof value.score !== 'number' || !Array.isArray(value.dims)) return null;
+    if (value.analysisVersion !== RECORD_VERSION) return null;
+    if (!value.analysis || !Array.isArray(value.analysis.dims)) return null;
     return value;
   } catch (err) {
     return null;
   }
+}
+
+/** 兼容老调用：只要 analysis 的部分（新代码请用 loadRecord） */
+function loadAnalysis(wxApi) {
+  const record = loadRecord(wxApi);
+  return record ? record.analysis : null;
 }
 
 // —— 全局设置（护眼模式等）——
@@ -111,7 +167,11 @@ module.exports = {
   normalizeProfile,
   loadProfile,
   saveProfile,
-  saveAnalysis,
+  RECORD_VERSION,
+  buildRecord,
+  isCompatibleRecord,
+  saveRecord,
+  loadRecord,
   loadAnalysis,
   defaultSettings,
   loadSettings,

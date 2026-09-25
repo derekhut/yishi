@@ -122,7 +122,13 @@ Page({
       sampleNote: isSample,
       outcome: outcome
     });
-    store.saveAnalysis(wx, analysis);
+    // 存的是完整记录（来源、照片、资料快照、时间、版本），下游页面靠它判断还能不能用
+    store.saveRecord(wx, {
+      analysis: analysis,
+      source: source,
+      fileID: this.fileID || '',
+      profile: this.profile
+    });
   },
 
   onRetry() {

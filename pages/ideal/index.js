@@ -62,13 +62,15 @@ Page({
       return;
     }
 
-    const analysis = store.loadAnalysis(wx);
-    if (!analysis) {
+    // 同上：用完整记录，校验它还是不是「这个人的」
+    const record = store.loadRecord(wx);
+    if (!record || !store.isCompatibleRecord(record, { fileID: record.fileID, profile: profile })) {
       wx.redirectTo({ url: '/pages/add/index' });
       return;
     }
+    this.record = record;
 
-    this.analysis = analysis;
+    const analysis = record.analysis;
 
     const garment = analysis.garment || {};
     const idealFeatures = featuresView(analysis.idealFeatures);

@@ -61,10 +61,20 @@ function loadConfirmPage(wxMock) {
 
 function seed(wxMock, options) {
   const opts = options || {};
-  wxMock._storage[store.KEY] = { who: '妈妈', difficulties: ['buttons', 'liftArm'], updatedAt: Date.now() };
+  const profile = opts.profile || { who: '妈妈', difficulties: ['buttons', 'liftArm'] };
+  wxMock._storage[store.KEY] = Object.assign({ updatedAt: Date.now() }, profile);
   if (opts.withAnalysis !== false) {
-    const analysis = opts.analysis || fallback.build({ who: '妈妈', difficulties: ['buttons', 'liftArm'] });
-    wxMock._storage[store.ANALYSIS_KEY] = analysis;
+    // 存的是完整记录（带版本、来源、照片、资料快照），不是裸 analysis
+    const analysis = opts.analysis || fallback.build(profile);
+    store.saveRecord(wxMock, {
+      analysis: analysis,
+      source: opts.source || 'model',
+      fileID: opts.fileID || '',
+      profile: opts.recordProfile || profile
+    });
+  } else if (opts.legacyAnalysis) {
+    // 升级前存进去的老格式：只有 analysis，没有版本 —— 必须被挡住
+    wxMock._storage[store.ANALYSIS_KEY] = opts.legacyAnalysis;
   }
   return wxMock;
 }
@@ -86,6 +96,21 @@ function main() {
   cfg.onLoad.call(page);
   ok(wx1._redirected === true && wx1._nav.url === '/pages/add/index', '无分析结果时回到添加衣服页');
 
+  console.log('\n[2b] 记录不对就挡住（T01 验收）');
+  // 分析结果还在，但资料已经换了人 —— 不能拿上一份话术给这个人用
+  wx1 = makeWx();
+  seed(wx1, { recordProfile: { who: '爸爸', difficulties: ['buttons'] }, analysis: fallback.build({ who: '爸爸', difficulties: ['buttons'] }) });
+  ({ cfg, page } = loadConfirmPage(wx1));
+  cfg.onLoad.call(page);
+  ok(wx1._redirected === true, '换了人 → 挡回重新分析，不展示混合结果');
+
+  // 升级前存进去的老格式（没有版本字段）
+  wx1 = makeWx();
+  seed(wx1, { withAnalysis: false, legacyAnalysis: fallback.build({ who: '妈妈', difficulties: ['buttons', 'liftArm'] }) });
+  ({ cfg, page } = loadConfirmPage(wx1));
+  cfg.onLoad.call(page);
+  ok(wx1._redirected === true, '老格式记录 → 挡回重新分析');
+
   console.log('\n[3] 渲染分析结果');
   wx1 = makeWx();
   seed(wx1);
@@ -93,7 +118,7 @@ function main() {
   cfg.onLoad.call(page);
   ok(page.data.who === '妈妈', '读取画像对象名');
   ok(page.data.loaded === true, '标记数据已就绪');
-  const analysis = wx1._storage[store.ANALYSIS_KEY];
+  const analysis = store.loadRecord(wx1).analysis;
   ok(page.data.questions.length === analysis.questions.length, '渲染全部待确认问题');
   ok(page.data.questions[0].index === '01', '问题按 01 起编号');
   ok(page.data.questions[0].title === analysis.questions[0].title, '问题标题来自分析结果');

@@ -25,13 +25,17 @@ Page({
       return;
     }
 
-    const analysis = store.loadAnalysis(wx);
-    if (!analysis) {
+    // 用完整记录，并校验它还是不是「这个人的」。
+    // 照片标识下游无从知道（只有结果页 query 里有），换了照片会走 add → result
+    // 重新分析并覆盖这条记录，所以这里实际比对的是资料。
+    const record = store.loadRecord(wx);
+    if (!record || !store.isCompatibleRecord(record, { fileID: record.fileID, profile: profile })) {
       wx.redirectTo({ url: '/pages/add/index' });
       return;
     }
+    this.record = record;
 
-    this.analysis = analysis;
+    const analysis = record.analysis;
 
     const questions = (analysis.questions || []).map(function (item, index) {
       return {

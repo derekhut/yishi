@@ -54,10 +54,17 @@ function loadIdealPage(wxMock) {
 
 function seed(wxMock, options) {
   const opts = options || {};
-  wxMock._storage[store.KEY] = { who: '妈妈', difficulties: ['buttons', 'liftArm'], updatedAt: Date.now() };
+  const profile = opts.profile || { who: '妈妈', difficulties: ['buttons', 'liftArm'] };
+  wxMock._storage[store.KEY] = Object.assign({ updatedAt: Date.now() }, profile);
   if (opts.withAnalysis !== false) {
-    wxMock._storage[store.ANALYSIS_KEY] =
-      opts.analysis || fallback.build({ who: '妈妈', difficulties: ['buttons', 'liftArm'] });
+    // 存的是完整记录（带版本、来源、照片、资料快照），不是裸 analysis
+    const analysis = opts.analysis || fallback.build(profile);
+    store.saveRecord(wxMock, {
+      analysis: analysis,
+      source: opts.source || 'model',
+      fileID: opts.fileID || '',
+      profile: opts.recordProfile || profile
+    });
   }
   return wxMock;
 }
@@ -78,7 +85,7 @@ function main() {
   console.log('\n[2] 双栏渲染');
   wx1 = makeWx();
   seed(wx1);
-  const analysis = wx1._storage[store.ANALYSIS_KEY];
+  const analysis = store.loadRecord(wx1).analysis;
   ({ cfg, page } = loadIdealPage(wx1));
   cfg.onLoad.call(page);
   ok(page.data.who === '妈妈', '读取画像对象名');

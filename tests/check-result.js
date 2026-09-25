@@ -96,12 +96,21 @@ async function main() {
 
   console.log('\n[3] 分析结果的存取（页面间传递）');
   const wxStore = makeWx();
-  store.saveAnalysis(wxStore, CLOUD_OK.analysis);
+  const saved = store.saveRecord(wxStore, {
+    analysis: CLOUD_OK.analysis,
+    source: 'model',
+    fileID: 'cloud://x/y.jpg',
+    profile: { who: '妈妈', difficulties: ['buttons'] }
+  });
+  ok(saved === true, '完整记录可写入');
   const loaded = store.loadAnalysis(wxStore);
   ok(loaded && loaded.score === CLOUD_OK.analysis.score, '分析结果可存取');
   ok(store.loadAnalysis(makeWx()) === null, '存储为空时返回 null');
   wxStore._storage[store.ANALYSIS_KEY] = 'not-json-object';
   ok(store.loadAnalysis(wxStore) === null, '脏数据返回 null');
+  // 升级前存进去的老格式只有 analysis —— 必须被判为不可用并引导重新分析
+  wxStore._storage[store.ANALYSIS_KEY] = CLOUD_OK.analysis;
+  ok(store.loadRecord(wxStore) === null, '老格式（无版本）读不出来 → 引导重新分析');
 
   console.log('\n[4] 页面守卫');
   let wx1 = makeWx({ callResult: CLOUD_OK });
